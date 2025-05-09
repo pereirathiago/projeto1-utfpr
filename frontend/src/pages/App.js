@@ -1,11 +1,15 @@
-import logo from './cassio.png';
-import './App.css';
+import CassioImage from '../components/CassioImage';
+import '../styles/App.css';
 
 function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
+        <CassioImage />
+        <CassioImage />
+        <CassioImage />
+        <CassioImage />
+        <CassioImage />
         <p>
           Edit <code>src/App.js</code> and save to reload.
         </p>
