@@ -1,0 +1,38 @@
+{
+  "name": "api-projeto-redes",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc && tscpaths -p tsconfig.json -s ./src -o ./dist",
+    "dev": "cross-env NODE_ENV=development ts-node-dev --respawn --transpile-only --cls --rs src/shared/infra/http/server.ts",
+    "start": "node dist/shared/infra/http/server.js",
+    "start:debug": "NODE_ENV=production node --inspect dist/shared/infra/http/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/cors": "^2.8.18",
+    "@types/express": "^5.0.1",
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/node": "^22.15.15",
+    "cross-env": "^7.0.3",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "class-transformer": "^0.5.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^4.21.2",
+    "express-async-errors": "^3.1.1",
+    "jsonwebtoken": "^9.0.2",
+    "reflect-metadata": "^0.2.2",
+    "tsyringe": "^4.10.0"
+  }
+}
