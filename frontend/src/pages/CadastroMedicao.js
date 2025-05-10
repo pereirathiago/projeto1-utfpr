@@ -85,12 +85,12 @@ export default function Cadastro() {
                     required
                     className="border p-2 rounded col-span-full"
                 />
-                <button
-                    type="submit"
-                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 col-span-full"
-                >
-                    Cadastrar Medição
-                </button>
+                    <button
+                        type="submit"
+                        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 justify-self-end col-span-full"
+                    >
+                        Cadastrar Medição
+                    </button>
             </form>
         </div>
     )

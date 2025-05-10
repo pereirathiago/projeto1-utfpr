@@ -40,10 +40,8 @@ export default function Login() {
             value={form.password}
             onChange={handleChange}
           />
-          <PrimaryButton type="submit">Entrar</PrimaryButton>
-          <CreateAccountButton onClick={() => navigate('/home')}>
-            Não tem uma conta?<br></br> Criar
-          </CreateAccountButton>
+          <PrimaryButton type="submit">Entrar</PrimaryButton>         
+          <CreateAccountButton onClick={() => navigate('/cadastroUsuario')} texto1="Não tem uma conta?" texto2="Crie uma aqui!"/>
         </form>
       </div>
     </div>

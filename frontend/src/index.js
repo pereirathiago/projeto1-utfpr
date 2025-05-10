@@ -7,6 +7,7 @@ import NavBar from './components/NavBar';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import CadastroMedicao from './pages/CadastroMedicao';
+import CadastroUsuario from './pages/CadastroUsuario';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -28,6 +29,11 @@ root.render(
           <>
             <NavBar />
             <CadastroMedicao />
+          </>
+          } />
+          <Route path="/cadastroUsuario" element={
+          <>
+            <CadastroUsuario />
           </>
           } />
       </Routes>

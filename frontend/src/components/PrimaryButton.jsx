@@ -12,14 +12,17 @@ export function PrimaryButton({ children, onClick, type = 'button' }) {
   );
 }
 
-export function CreateAccountButton({ children, onClick }) {
+export function CreateAccountButton({ texto1, texto2, onClick }) {
   return (
-    <div className="text-center mt-6">
+    <div className="text-center">
+      <p className='text-lg text-center mt-8'>
+        {texto1}
+      </p>
       <span
         onClick={onClick}
         className="text-blue-600 hover:underline cursor-pointer text-lg"
       >
-        {children}
+        {texto2}
       </span>
     </div>
   );
