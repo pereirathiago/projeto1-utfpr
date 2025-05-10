@@ -1,5 +1,12 @@
 {
   "compilerOptions": {
+    "typeRoots": [
+      "./src/@types",
+      "./custom_typings",
+      "./@types",
+      "./node_modules/@types"
+    ],
+    "types": ["express"],
     "target": "ES2022",
     "module": "commonjs",
     "baseUrl": "./src",
@@ -16,9 +23,9 @@
     "emitDecoratorMetadata": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
   },
   "include": [
     "./src"
-  ]
+, "src/@types"  ]
 }
