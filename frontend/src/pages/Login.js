@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import InputField from '../components/InputField';
-import PrimaryButton from '../components/PrimaryButton';
+import { PrimaryButton, CreateAccountButton } from '../components/PrimaryButton';
 
 export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' });
@@ -13,7 +13,7 @@ export default function Login() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     // Aqui você pode adicionar lógica de autenticação
     console.log('Formulário enviado:', form);
 
@@ -41,6 +41,9 @@ export default function Login() {
             onChange={handleChange}
           />
           <PrimaryButton type="submit">Entrar</PrimaryButton>
+          <CreateAccountButton onClick={() => navigate('/home')}>
+            Não tem uma conta?<br></br> Criar
+          </CreateAccountButton>
         </form>
       </div>
     </div>

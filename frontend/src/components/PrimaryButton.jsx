@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function PrimaryButton({ children, onClick, type = 'button' }) {
+export function PrimaryButton({ children, onClick, type = 'button' }) {
   return (
     <button
       type={type}
@@ -9,5 +9,18 @@ export default function PrimaryButton({ children, onClick, type = 'button' }) {
     >
       {children}
     </button>
+  );
+}
+
+export function CreateAccountButton({ children, onClick }) {
+  return (
+    <div className="text-center mt-6">
+      <span
+        onClick={onClick}
+        className="text-blue-600 hover:underline cursor-pointer text-lg"
+      >
+        {children}
+      </span>
+    </div>
   );
 }
