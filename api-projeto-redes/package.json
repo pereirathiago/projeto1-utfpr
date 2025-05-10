@@ -8,7 +8,9 @@
     "start": "node dist/shared/infra/http/server.js",
     "start:debug": "NODE_ENV=production node --inspect dist/shared/infra/http/server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "typeorm": "typeorm-ts-node-commonjs -d ./src/shared/infra/typeorm/data-source.ts"
+    "typeorm": "typeorm-ts-node-commonjs -d ./src/shared/infra/typeorm/data-source.ts",
+    "migration:create": "typeorm-ts-node-commonjs migration:create",
+    "migration:run": "npm run typeorm migration:run"
   },
   "keywords": [],
   "author": "",

@@ -6,7 +6,7 @@
       "./@types",
       "./node_modules/@types"
     ],
-    "types": ["express"],
+    "types": ["express", "node"],
     "target": "ES2022",
     "module": "commonjs",
     "baseUrl": "./src",
