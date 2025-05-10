@@ -6,10 +6,6 @@ function App() {
     <div className="App">
       <header className="App-header">
         <CassioImage />
-        <CassioImage />
-        <CassioImage />
-        <CassioImage />
-        <CassioImage />
         <p>
           Edit <code>src/App.js</code> and save to reload.
         </p>
