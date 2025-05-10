@@ -1,0 +1,21 @@
+services:
+  database: 
+    image: postgres
+    container_name: database_projeto1_utfpr
+    restart: always
+    ports: 
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=projeto1_utfpr_user
+      - POSTGRES_PASSWORD=123456
+      - POSTGRES_DB=projeto1_utfpr_db
+    volumes:
+      - pgdata:/data/postgres
+
+volumes:
+  pgdata:
+    driver: local
+
+networks:
+  default:
+    driver: bridge

@@ -1,10 +1,14 @@
-import 'express-async-errors'
 import 'reflect-metadata'
-import express, { NextFunction, Request, Response } from 'express'
+import 'dotenv/config'
 import cors from 'cors'
+import express, { NextFunction, Request, Response } from 'express'
+import 'express-async-errors'
+import 'shared/container'
+import initializeDatabase from '../typeorm'
 import { AppError } from '../../errors/app-error'
 import { router } from './router'
 
+initializeDatabase()
 const app = express()
 
 app.use(express.json())

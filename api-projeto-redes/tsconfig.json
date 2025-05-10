@@ -6,7 +6,7 @@
     "outDir": "./dist",
     "paths": {
       "@modules/*": ["modules/*"],
-      "@config/*": ["config/*"],
+      "@config/*": ["src/config/*"],
       "@shared/*": ["src/shared/*"],
       "@errors/*": ["errors/*"],
       "@utils/*": ["utils/*"]
