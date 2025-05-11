@@ -79,25 +79,29 @@ class MedicoesRepository implements IMedicoesRepository {
     order: string,
     filter: string
   ): Promise<HttpResponse> {
-    let columnName: string
-    let columnDirection: 'ASC' | 'DESC'
-
-    if ((typeof (order) === 'undefined') || (order === "")) {
-      columnName = 'nome'
-      columnDirection = 'ASC'
-    } else {
-      columnName = order.substring(0, 1) === '-' ? order.substring(1) : order
-      columnDirection = order.substring(0, 1) === '-' ? 'DESC' : 'ASC'
+    const allowedColumns = {
+      id: 'med.id',
+      comodo: 'com.nome',
+      dataHora: 'med.data_hora',
+      sinal2_4: 'med.nivel_sinal_2_4ghz',
+      sinal5: 'med.nivel_sinal_5ghz',
+      velocidade2_4: 'med.velocidade_2_4ghz',
+      velocidade5: 'med.velocidade_5ghz',
+      interferencia: 'med.interferencia'
     }
 
-    const referenceArray = [
-      "nome",
-    ]
-    const columnOrder = new Array<'ASC' | 'DESC'>(2).fill('ASC')
+    let columnName = 'com.nome'
+    let columnDirection: 'ASC' | 'DESC' = 'ASC'
 
-    const index = referenceArray.indexOf(columnName)
+    if (order && order !== '') {
+      const isDesc = order.startsWith('-')
+      const requestedColumn = isDesc ? order.substring(1) : order
 
-    columnOrder[index] = columnDirection
+      if (requestedColumn in allowedColumns) {
+        columnName = allowedColumns[requestedColumn]
+        columnDirection = isDesc ? 'DESC' : 'ASC'
+      }
+    }
 
     const offset = rowsPerPage * page
 
@@ -127,7 +131,7 @@ class MedicoesRepository implements IMedicoesRepository {
         .andWhere(new Brackets(query => {
           query.andWhere('CAST(com.nome AS VARCHAR) ilike :search', { search: `%${search}%` })
         }))
-        .addOrderBy('com.nome', columnOrder[0])
+        .addOrderBy(columnName, columnDirection)
         .offset(offset)
         .limit(rowsPerPage)
         .take(rowsPerPage)
