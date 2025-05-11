@@ -23,13 +23,21 @@ export default function CadastroUsuario() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      const response = await axios.post('http://localhost:3000/users', formData)
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/users`, formData)
       console.log('Usuário cadastrado com sucesso:', response.data)
       alert('Usuário cadastrado com sucesso!')
-      navigate('/login') // Redireciona para o login
+      navigate('/') // Redireciona para o login
     } catch (error) {
-      console.error('Erro ao cadastrar usuário:', error)
-      alert('Erro ao cadastrar usuário. Verifique os dados e tente novamente.')
+      switch (error.response?.status) {
+        case 400:
+          alert('Erro: Dados inválidos. Verifique os campos e tente novamente.')
+          break
+        case 409:
+          alert('Erro: Email já cadastrado.')
+          break
+        default:
+          alert('Erro ao cadastrar usuário. Tente novamente mais tarde.')
+      }
     }
   }
 

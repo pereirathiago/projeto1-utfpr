@@ -7,6 +7,7 @@ export default function InputField({ label, type = 'text', name, value, onChange
         {label}
       </label>
       <input
+        required
         className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         type={type}
         id={name}

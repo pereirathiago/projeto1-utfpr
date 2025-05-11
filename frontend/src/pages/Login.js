@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import InputField from '../components/InputField';
 import { PrimaryButton, CreateAccountButton } from '../components/PrimaryButton';
 
@@ -11,15 +12,29 @@ export default function Login() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Aqui você pode adicionar lógica de autenticação
-    console.log('Formulário enviado:', form);
+    // Codifica a senha em Base64
+    const formData = {
+      email: form.email,
+      password: btoa(form.password),
+    };
 
-    // Após "login", redireciona para a página inicial
-    navigate('/home');
+    try {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/session`, formData);
+
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      localStorage.setItem('refreshToken', response.data.refreshToken);
+
+      navigate('/home');
+    } catch (error) {
+      console.error('Erro no login:', error);
+      alert('Falha no login. Verifique suas credenciais.');
+    }
   };
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -40,8 +55,12 @@ export default function Login() {
             value={form.password}
             onChange={handleChange}
           />
-          <PrimaryButton type="submit">Entrar</PrimaryButton>         
-          <CreateAccountButton onClick={() => navigate('/cadastroUsuario')} texto1="Não tem uma conta?" texto2="Crie uma aqui!"/>
+          <PrimaryButton type="submit">Entrar</PrimaryButton>
+          <CreateAccountButton
+            onClick={() => navigate('/cadastroUsuario')}
+            texto1="Não tem uma conta?"
+            texto2="Crie uma aqui!"
+          />
         </form>
       </div>
     </div>
