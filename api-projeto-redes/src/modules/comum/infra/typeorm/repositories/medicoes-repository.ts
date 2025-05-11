@@ -1,25 +1,37 @@
-import { IComodoDTO } from '@modules/comum/dtos/i-comodo-dto'
-import { IComodoRepository } from '@modules/comum/repositories/i-comodos-repository'
 import { AppError } from 'shared/errors/app-error'
 import { HttpResponse, noContent, notFound, ok, serverError } from 'shared/helpers'
 import { Brackets, Repository } from 'typeorm'
-import { Comodo } from '../entities/comodo'
 import { AppDataSource } from 'shared/infra/typeorm/data-source'
+import { IMedicoesRepository } from '@modules/comum/repositories/i-medicoes-repository'
+import { Medicao } from '../entities/medicao'
+import { IMedicaoDTO } from '@modules/comum/dtos/i-medicao-dto'
 
-class ComodoRepository implements IComodoRepository {
-  private repository: Repository<Comodo>
+class MedicoesRepository implements IMedicoesRepository {
+  private repository: Repository<Medicao>
 
   constructor() {
-    this.repository = AppDataSource.getRepository(Comodo)
+    this.repository = AppDataSource.getRepository(Medicao)
   }
 
   // create
   async create({
-    nome,
+    comodoId,
     userId,
-  }: IComodoDTO): Promise<HttpResponse> {
+    interferencia,
+    nivelSinal2_4ghz,
+    nivelSinal5ghz,
+    velocidade2_4ghz,
+    velocidade5ghz,
+    dataHora,
+  }: IMedicaoDTO): Promise<HttpResponse> {
     const comodo = this.repository.create({
-      nome,
+      interferencia,
+      nivelSinal2_4ghz,
+      nivelSinal5ghz,
+      velocidade2_4ghz,
+      velocidade5ghz,
+      dataHora,
+      comodo: { id: comodoId },
       user: { id: userId },
     })
 
@@ -65,15 +77,25 @@ class ComodoRepository implements IComodoRepository {
     const offset = rowsPerPage * page
 
     try {
-      let query = this.repository.createQueryBuilder('com')
+      let query = this.repository.createQueryBuilder('med')
         .select([
-          'com.id as "id"',
-          'com.nome as "nome"'
+          'med.id as "id"',
+          'com.id as "comodoId"',
+          'com.nome as "nomeComodo"',
+          'med.data_hora as "dataHora"',
+          'med.nivel_sinal_2_4ghz as "nivelSinal2_4ghz"',
+          'med.nivel_sinal_5ghz as "nivelSinal5ghz"',
+          'med.velocidade_2_4ghz as "velocidade2_4ghz"',
+          'med.velocidade_5ghz as "velocidade5ghz"',
+          'med.interferencia as "interferencia"',
         ])
+
+      query.leftJoin('med.comodo', 'com')
+      query.leftJoin('med.user', 'use')
 
       if (filter) {
         query = query
-          .where({user: { id: filter } })
+          .where({ user: { id: filter } })
       }
 
       const comodos = await query
@@ -92,53 +114,19 @@ class ComodoRepository implements IComodoRepository {
     }
   }
 
-  // select
-  async select(filter: string, userId: string): Promise<HttpResponse> {
-    try {
-      const comodos = await this.repository.createQueryBuilder('com')
-        .select([
-          'com.id as "value"',
-          'com.nome as "label"',
-        ])
-        .where('com.user.id = :userId', { userId })
-        .andWhere('com.nome ilike :filter', { filter: `${filter}%` })
-        .addOrderBy('com.nome')
-        .getRawMany()
-
-      return ok(comodos)
-    } catch (err) {
-      return serverError(err)
-    }
-  }
-
-  // id select
-  async idSelect(id: string, userId: string): Promise<HttpResponse> {
-    try {
-      const comodos = await this.repository.createQueryBuilder('com')
-        .select([
-          'com.id as "value"',
-          'com.nome as "label"',
-        ])
-        .where('com.user.id = :userId', { userId })
-        .andWhere('com.id = :id', { id: `${id}` })
-        .getRawOne()
-
-      return ok(comodos)
-    } catch (err) {
-      return serverError(err)
-    }
-  }
-
   // count
   async count(
     search: string,
     filter: string
   ): Promise<HttpResponse> {
     try {
-      let query = this.repository.createQueryBuilder('com')
+      let query = this.repository.createQueryBuilder('med')
         .select([
-          'com.id as "id"',
+          'med.id as "id"',
         ])
+
+      query.leftJoin('med.comodo', 'com')
+      query.leftJoin('med.user', 'use')
 
       if (filter) {
         query = query
@@ -161,20 +149,28 @@ class ComodoRepository implements IComodoRepository {
   // get
   async get(id: string, userId: string): Promise<HttpResponse> {
     try {
-      const comodo = await this.repository.createQueryBuilder('com')
+      const medicao = await this.repository.createQueryBuilder('med')
         .select([
-          'com.id as "id"',
-          'com.nome as "nome"',
+          'med.id as "id"',
+          'com.id as "comodoId"',
+          'com.nome as "nomeComodo"',
+          'med.data_hora as "dataHora"',
+          'med.nivel_sinal_2_4ghz as "nivelSinal2_4ghz"',
+          'med.nivel_sinal_5ghz as "nivelSinal5ghz"',
+          'med.velocidade_2_4ghz as "velocidade2_4ghz"',
+          'med.velocidade_5ghz as "velocidade5ghz"',
+          'med.interferencia as "interferencia"',
         ])
-        .where('com.user.id = :userId', { userId })
-        .andWhere('com.id = :id', { id })
+        .leftJoin('med.comodo', 'com')
+        .where('med.user.id = :userId', { userId })
+        .andWhere('med.id = :id', { id })
         .getRawOne()
 
-      if (typeof comodo === 'undefined') {
+      if (typeof medicao === 'undefined') {
         return noContent()
       }
 
-      return ok(comodo)
+      return ok(medicao)
     } catch (err) {
       return serverError(err)
     }
@@ -183,25 +179,37 @@ class ComodoRepository implements IComodoRepository {
   // update
   async update({
     id,
-    nome,
+    comodoId,
     userId,
-  }: IComodoDTO): Promise<HttpResponse> {
-    const comodo = await this.repository.find({where: { id, user: { id: userId } }})
+    interferencia,
+    nivelSinal2_4ghz,
+    nivelSinal5ghz,
+    velocidade2_4ghz,
+    velocidade5ghz,
+    dataHora,
+  }: IMedicaoDTO): Promise<HttpResponse> {
+    const medicao = await this.repository.find({ where: { id, user: { id: userId } } })
 
-    if (!comodo) {
+    if (!medicao) {
       return notFound()
     }
 
-    const newComodo = this.repository.create({
+    const newMedicao = this.repository.create({
       id,
-      nome,
+      comodo: { id: comodoId },
       user: { id: userId },
+      interferencia,
+      nivelSinal2_4ghz,
+      nivelSinal5ghz,
+      velocidade2_4ghz,
+      velocidade5ghz,
+      dataHora,
     })
 
     try {
-      await this.repository.save(newComodo)
+      await this.repository.save(newMedicao)
 
-      return ok(newComodo)
+      return ok(newMedicao)
     } catch (err) {
       return serverError(err)
     }
@@ -240,5 +248,5 @@ class ComodoRepository implements IComodoRepository {
   }
 }
 
-export { ComodoRepository }
+export { MedicoesRepository }
 
