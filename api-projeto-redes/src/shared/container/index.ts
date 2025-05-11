@@ -9,7 +9,10 @@ import { IUserSecurityRepository } from '@modules/security/repositories/i-user-s
 import { UserSecurityRepository } from '@modules/security/infra/typeorm/repositories/user-security-repository'
 import { IUserTokenRepository } from '@modules/authentication/repositories/i-user-token-repository'
 import { UserTokenRepository } from '@modules/authentication/infra/typeorm/repositories/user-token-repository'
+import { IComodoRepository } from '@modules/comum/repositories/i-comodos-repository';
+import { ComodoRepository } from '@modules/comum/infra/typeorm/repositories/comodos-repository';
 
 container.registerSingleton<IUserRepository>('UserRepository', UserRepository)
 container.registerSingleton<IUserSecurityRepository>('UserSecurityRepository', UserSecurityRepository)
 container.registerSingleton<IUserTokenRepository>('UserTokenRepository', UserTokenRepository)
+container.registerSingleton<IComodoRepository>('ComodosRepository', ComodoRepository)

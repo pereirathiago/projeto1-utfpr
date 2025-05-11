@@ -7,11 +7,14 @@ import 'shared/container'
 import initializeDatabase from '../typeorm'
 import { AppError } from '../../errors/app-error'
 import { router } from './router'
+import upload from 'config/upload'
 
 initializeDatabase()
 const app = express()
 
 app.use(express.json())
+
+app.use('/avatar', express.static(`${upload.tmpFolder}/avatar`))
 
 const allowedOrgins = '*'
 
