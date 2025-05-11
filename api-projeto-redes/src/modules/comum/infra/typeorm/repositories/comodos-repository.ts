@@ -73,7 +73,7 @@ class ComodoRepository implements IComodoRepository {
 
       if (filter) {
         query = query
-          .where({user: { id: filter } })
+          .where({ user: { id: filter } })
       }
 
       const comodos = await query
@@ -180,13 +180,35 @@ class ComodoRepository implements IComodoRepository {
     }
   }
 
+  // find by name
+  async findByName(name: string, userId: string): Promise<HttpResponse> {
+    try {
+      const comodo = await this.repository.createQueryBuilder('com')
+        .select([
+          'com.id as "id"',
+          'com.nome as "nome"',
+        ])
+        .where('com.user.id = :userId', { userId })
+        .andWhere('UPPER(com.nome) = UPPER(:name)', { name })
+        .getRawOne()
+
+      if (!comodo) {
+        return noContent()
+      }
+
+      return ok(comodo)
+    } catch (err) {
+      return serverError(err)
+    }
+  }
+
   // update
   async update({
     id,
     nome,
     userId,
   }: IComodoDTO): Promise<HttpResponse> {
-    const comodo = await this.repository.find({where: { id, user: { id: userId } }})
+    const comodo = await this.repository.find({ where: { id, user: { id: userId } } })
 
     if (!comodo) {
       return notFound()

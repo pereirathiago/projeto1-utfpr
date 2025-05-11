@@ -3,6 +3,7 @@ import { IMedicaoDTO } from '../dtos/i-medicao-dto'
 
 interface IMedicoesRepository {
   create(data: IMedicaoDTO): Promise<HttpResponse>
+  bulkCreate(data: IMedicaoDTO[]): Promise<HttpResponse>
   list(
     search: string,
     page: number,

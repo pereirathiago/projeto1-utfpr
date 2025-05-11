@@ -46,6 +46,31 @@ class MedicoesRepository implements IMedicoesRepository {
     return result
   }
 
+  async bulkCreate(data: IMedicaoDTO[]): Promise<HttpResponse> {
+    const medicoes = data.map(item => {
+      return this.repository.create({
+        comodo: { id: item.comodoId },
+        user: { id: item.userId },
+        interferencia: item.interferencia,
+        nivelSinal2_4ghz: item.nivelSinal2_4ghz,
+        nivelSinal5ghz: item.nivelSinal5ghz,
+        velocidade2_4ghz: item.velocidade2_4ghz,
+        velocidade5ghz: item.velocidade5ghz,
+        dataHora: item.dataHora,
+      })
+    })
+
+    const result = await this.repository.save(medicoes)
+      .then(comodoResult => {
+        return ok(comodoResult)
+      })
+      .catch(error => {
+        return serverError(error)
+      })
+
+    return result
+  }
+
   // list
   async list(
     search: string,

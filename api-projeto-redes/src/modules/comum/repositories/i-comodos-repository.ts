@@ -14,6 +14,7 @@ interface IComodoRepository {
   idSelect(id: string, userId: string): Promise<HttpResponse>
   count(search: string, filter: string): Promise<HttpResponse>
   get(id: string, userId: string): Promise<HttpResponse>
+  findByName(name: string, userId: string): Promise<HttpResponse>
   update(data: IComodoDTO): Promise<HttpResponse>
   delete(id: string): Promise<HttpResponse>
   multiDelete(ids: string[]): Promise<HttpResponse>

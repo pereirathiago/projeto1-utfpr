@@ -5,21 +5,26 @@ import { CountMedicoesController } from '@modules/comum/use-cases/medicoes/count
 import { ListMedicoesController } from '@modules/comum/use-cases/medicoes/list-medicoes/list-medicoes-controller'
 import { GetMedicoesController } from '@modules/comum/use-cases/medicoes/get-medicoes/get-medicoes-controller'
 import { UpdateMedicoesController } from '@modules/comum/use-cases/medicoes/update-medicoes/update-medicoes-controller'
-import { GetMedicoesCsvModelController } from '@modules/comum/use-cases/medicoes/get-csv-modelo-medicoes/get-csv-modelo-medicoes-controller'
+import { GetMedicoesModelController } from '@modules/comum/use-cases/medicoes/get-xlsx-modelo-medicoes/get-xlsx-modelo-medicoes-controller'
+import { ImportMedicoesController } from '@modules/comum/use-cases/medicoes/import-medicoes/import-medicoes-controller'
+import multer from 'multer'
 
 const medicoesRoutes = Router()
+const upload = multer({ storage: multer.memoryStorage() })
 
 const createMedicaoController = new CreateMedicaoController()
+const importMedicoesController = new ImportMedicoesController()
 const countMedicoesCOntroller = new CountMedicoesController()
 const listMedicoesController = new ListMedicoesController()
 const getMedicoesController = new GetMedicoesController()
 const updateMedicoesController = new UpdateMedicoesController()
-const getCsvModeloMedicoesController = new GetMedicoesCsvModelController()
+const getModeloMedicoesController = new GetMedicoesModelController()
 
 medicoesRoutes.post('/', ensureAuthenticated, createMedicaoController.handle.bind(createMedicaoController))
+medicoesRoutes.post('/import', ensureAuthenticated, upload.single('file'), importMedicoesController.handle.bind(importMedicoesController))
 medicoesRoutes.post('/list', ensureAuthenticated, listMedicoesController.handle.bind(listMedicoesController))
 medicoesRoutes.get('/count', ensureAuthenticated, countMedicoesCOntroller.handle.bind(countMedicoesCOntroller))
-medicoesRoutes.get('/csv/modelo', ensureAuthenticated, getCsvModeloMedicoesController.handle.bind(getCsvModeloMedicoesController))
+medicoesRoutes.get('/modelo', ensureAuthenticated, getModeloMedicoesController.handle.bind(getModeloMedicoesController))
 medicoesRoutes.get('/:id', ensureAuthenticated, getMedicoesController.handle.bind(getMedicoesController))
 medicoesRoutes.put('/:id', ensureAuthenticated, updateMedicoesController.handle.bind(updateMedicoesController))
 

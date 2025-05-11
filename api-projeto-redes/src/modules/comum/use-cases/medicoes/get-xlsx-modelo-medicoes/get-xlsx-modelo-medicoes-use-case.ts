@@ -26,20 +26,6 @@ class GetMedicoesModeloUseCase {
     }
   }
 
-  async getCSVModelo(): Promise<string> {
-    const { headers, exampleRow } = this.getModeloData()
-    
-    const csvHeaders = headers.map(h => h.header).join(',')
-    const csvRow = Object.values(exampleRow).join(',')
-    
-    return [
-      '# Modelo para cadastro de medições',
-      '# Substitua os valores abaixo pelos reais',
-      csvHeaders,
-      csvRow
-    ].join('\n')
-  }
-
   async getXLSXModelo(): Promise<ExcelJS.Buffer> {
     const { headers, exampleRow } = this.getModeloData()
     
@@ -60,17 +46,14 @@ class GetMedicoesModeloUseCase {
     return await workbook.xlsx.writeBuffer()
   }
 
-  async execute(format: 'csv' | 'xlsx') {
+  async execute(format: 'xlsx') {
     if (format === 'xlsx') {
       return {
         type: 'xlsx',
         data: await this.getXLSXModelo()
       }
     }
-    return {
-      type: 'csv',
-      data: await this.getCSVModelo()
-    }
+    throw new Error('Formato não suportado')
   }
 }
 
