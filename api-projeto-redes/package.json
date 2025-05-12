@@ -8,9 +8,9 @@
     "start": "node dist/shared/infra/http/server.js",
     "start:debug": "NODE_ENV=production node --inspect dist/shared/infra/http/server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "typeorm": "typeorm-ts-node-commonjs -d ./src/shared/infra/typeorm/data-source.ts",
-    "migration:create": "typeorm-ts-node-commonjs migration:create",
-    "migration:run": "npm run typeorm migration:run"
+    "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
+    "migration:create": "npm run typeorm -- migration:create ./src/shared/infra/typeorm/migrations/NomeDaMigration",
+    "migration:run": "npm run typeorm -- migration:run -d ./src/shared/infra/typeorm/data-source.ts"
   },
   "keywords": [],
   "author": "",
