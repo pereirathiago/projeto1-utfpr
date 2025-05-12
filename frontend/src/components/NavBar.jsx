@@ -2,32 +2,33 @@
 import {
     Disclosure,
     DisclosureButton,
-    DisclosurePanel,
     Menu,
     MenuButton,
     MenuItem,
     MenuItems,
-} from '@headlessui/react'
+} from '@headlessui/react';
 import {
     Bars3Icon,
-    BellIcon,
     XMarkIcon,
-} from '@heroicons/react/24/outline'
-import { useLocation, useNavigate } from 'react-router-dom'
+} from '@heroicons/react/24/outline';
+import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 function classNames(...classes) {
-    return classes.filter(Boolean).join(' ')
+    return classes.filter(Boolean).join(' ');
 }
 
 export default function NavBar() {
-    const navigate = useNavigate()
-    const location = useLocation()
+    const navigate = useNavigate();
+    const location = useLocation();
+    const [user, setUser] = useState(null);
 
     const navigation = [
         { name: 'Medições', href: '/home' },
         { name: 'Cadastro de Medição', href: '/cadastromedicao' },
         { name: 'Cadastro de Cômodo', href: '/cadastrocomodo' },
-    ]
+    ];
 
     const handleSignOut = () => {
         localStorage.removeItem('token');
@@ -36,6 +37,27 @@ export default function NavBar() {
         navigate('/');
     };
 
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            navigate('/');
+            return;
+        }
+
+        axios.get('http://localhost:3333/users/profile', {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            }
+        }).then(res => {
+            setUser(res.data);
+        }).catch(() => {
+            console.error('Erro ao carregar dados do usuário');
+        });
+    }, [navigate]);
+
+    const avatarUrl = user?.avatarUrl && user.avatarUrl !== '/avatar/null'
+        ? `http://localhost:3333${user.avatarUrl}`
+        : 'https://i.pinimg.com/1200x/2c/47/d5/2c47d5dd5b532f83bb55c4cd6f5bd1ef.jpg';
 
     return (
         <Disclosure as="nav" className="bg-gray-800">
@@ -75,14 +97,13 @@ export default function NavBar() {
                         </div>
                     </div>
                     <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-
                         <Menu as="div" className="relative ml-3">
                             <div>
                                 <MenuButton className="relative flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
                                     <img
-                                        className="h-8 w-8 rounded-full"
-                                        src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                                        alt=""
+                                        className="h-8 w-8 rounded-full object-cover"
+                                        src={avatarUrl}
+                                        alt="User avatar"
                                     />
                                 </MenuButton>
                             </div>
@@ -95,7 +116,6 @@ export default function NavBar() {
                                         Ver perfil
                                     </button>
                                 </MenuItem>
-
                                 <MenuItem>
                                     <button
                                         onClick={handleSignOut}
@@ -110,5 +130,5 @@ export default function NavBar() {
                 </div>
             </div>
         </Disclosure>
-    )
+    );
 }
