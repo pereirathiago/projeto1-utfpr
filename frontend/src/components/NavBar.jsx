@@ -25,12 +25,17 @@ export default function NavBar() {
 
     const navigation = [
         { name: 'Medições', href: '/home' },
-        { name: 'Cadastro', href: '/cadastromedicao' },
+        { name: 'Cadastro de Medição', href: '/cadastromedicao' },
+        { name: 'Cadastro de Cômodo', href: '/cadastrocomodo' },
     ]
 
     const handleSignOut = () => {
-        navigate('/')
-    }
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        localStorage.removeItem('refreshToken');
+        navigate('/');
+    };
+
 
     return (
         <Disclosure as="nav" className="bg-gray-800">
@@ -83,21 +88,20 @@ export default function NavBar() {
                             </div>
                             <MenuItems className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5">
                                 <MenuItem>
-                                    <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                        Your Profile
-                                    </a>
+                                    <button
+                                        onClick={() => navigate('/perfil')}
+                                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                    >
+                                        Ver perfil
+                                    </button>
                                 </MenuItem>
-                                <MenuItem>
-                                    <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                        Settings
-                                    </a>
-                                </MenuItem>
+
                                 <MenuItem>
                                     <button
                                         onClick={handleSignOut}
                                         className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                     >
-                                        Sign out
+                                        Sair
                                     </button>
                                 </MenuItem>
                             </MenuItems>

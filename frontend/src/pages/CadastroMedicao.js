@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import axios from 'axios'
 
 export default function Cadastro() {
     const [formData, setFormData] = useState({
@@ -9,34 +10,116 @@ export default function Cadastro() {
         velocidade5: '',
         interferencia: '',
         dataHora: '',
-    })
+    });
+
+    const [comodos, setComodos] = useState([]);
+    const token = localStorage.getItem('token');
+
+    const fetchComodos = async () => {
+        try {
+            const response = await axios.post(
+                `${process.env.REACT_APP_API_URL}/comodos/list`,
+                {
+                    search: '',
+                    page: 1,
+                    pageSize: 10000,
+                    order: 'nome',
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+            setComodos(response.data.items);
+        } catch (error) {
+            console.error('Erro ao buscar cômodos:', error);
+            alert('Erro ao carregar os cômodos.');
+        }
+    };
+
+    useEffect(() => {
+        fetchComodos();
+    }, []);
 
     const handleChange = (e) => {
         setFormData({
             ...formData,
             [e.target.name]: e.target.value,
-        })
-    }
+        });
+    };
 
-    const handleSubmit = (e) => {
-        e.preventDefault()
-        console.log('Medição cadastrada:', formData)
-        // Aqui você pode fazer um POST para a API
-        alert('Medição cadastrada com sucesso!')
-    }
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        try {
+            const payload = {
+                comodoId: formData.comodo,
+                dataHora: formData.dataHora.replace('T', ' '), // Ajuste para formato da API
+                nivelSinal2_4ghz: parseInt(formData.sinal24),
+                nivelSinal5ghz: parseInt(formData.sinal5),
+                velocidade2_4ghz: parseFloat(formData.velocidade24),
+                velocidade5ghz: parseFloat(formData.velocidade5),
+                interferencia: parseInt(formData.interferencia),
+            };
+
+            const response = await axios.post(
+                `${process.env.REACT_APP_API_URL}/medicoes/`,
+                payload,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            console.log('Medição cadastrada:', response.data);
+            alert('Medição cadastrada com sucesso!');
+
+            // Opcional: limpar o formulário
+            setFormData({
+                comodo: '',
+                sinal24: '',
+                sinal5: '',
+                velocidade24: '',
+                velocidade5: '',
+                interferencia: '',
+                dataHora: '',
+            });
+        } catch (error) {
+            console.error('Erro ao cadastrar medição:', error);
+            alert('Erro ao cadastrar medição. Verifique os dados e tente novamente.');
+        }
+    };
 
     return (
         <div className="max-w-4xl mx-auto mt-10 p-6 bg-white rounded shadow">
             <h2 className="text-xl font-bold mb-6">Cadastro de Medição</h2>
             <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input
-                    name="comodo"
-                    placeholder="Cômodo"
-                    value={formData.comodo}
-                    onChange={handleChange}
-                    required
-                    className="border p-2 rounded"
-                />
+                {comodos.length > 0 ? (
+                    <select
+                        name="comodo"
+                        value={formData.comodo}
+                        onChange={handleChange}
+                        required
+                        className="border p-2 rounded"
+                    >
+                        <option value="">Selecione um cômodo</option>
+                        {comodos.map((comodo) => (
+                            <option key={comodo.id} value={comodo.id}>
+                                {comodo.nome}
+                            </option>
+                        ))}
+                    </select>
+                ) : (
+                    <input
+                        type="text"
+                        disabled
+                        value="Nenhum cômodo cadastrado"
+                        className="border p-2 rounded bg-gray-100 text-gray-500"
+                    />
+                )}
+
                 <input
                     name="sinal24"
                     placeholder="Sinal 2.4 GHz (dBm)"
@@ -44,6 +127,7 @@ export default function Cadastro() {
                     onChange={handleChange}
                     required
                     className="border p-2 rounded"
+                    type="number"
                 />
                 <input
                     name="sinal5"
@@ -52,6 +136,7 @@ export default function Cadastro() {
                     onChange={handleChange}
                     required
                     className="border p-2 rounded"
+                    type="number"
                 />
                 <input
                     name="velocidade24"
@@ -60,14 +145,19 @@ export default function Cadastro() {
                     onChange={handleChange}
                     required
                     className="border p-2 rounded"
+                    type="number"
+                    step="1"
                 />
                 <input
+                label="Velocidade 5 GHz (Mbps)"
                     name="velocidade5"
                     placeholder="Velocidade 5 GHz (Mbps)"
                     value={formData.velocidade5}
                     onChange={handleChange}
                     required
                     className="border p-2 rounded"
+                    type="number"
+                    step="1"
                 />
                 <input
                     name="interferencia"
@@ -76,6 +166,7 @@ export default function Cadastro() {
                     onChange={handleChange}
                     required
                     className="border p-2 rounded"
+                    type="number"
                 />
                 <input
                     type="datetime-local"
@@ -85,13 +176,14 @@ export default function Cadastro() {
                     required
                     className="border p-2 rounded col-span-full"
                 />
-                    <button
-                        type="submit"
-                        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 justify-self-end col-span-full"
-                    >
-                        Cadastrar Medição
-                    </button>
+                <button
+                    type="submit"
+                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 justify-self-end col-span-full"
+                    disabled={comodos.length === 0}
+                >
+                    Cadastrar Medição
+                </button>
             </form>
         </div>
-    )
+    );
 }

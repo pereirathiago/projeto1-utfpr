@@ -8,6 +8,8 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import CadastroMedicao from './pages/CadastroMedicao';
 import CadastroUsuario from './pages/CadastroUsuario';
+import CadastroComodo from './pages/CadastroComodo';
+import ShowPerfil from './pages/Perfil';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -35,6 +37,21 @@ root.render(
           <>
             <CadastroUsuario />
           </>
+          
+          } />
+          <Route path="/cadastrocomodo" element={
+          <>
+            <NavBar />
+            <CadastroComodo />
+          </>
+          
+          } />
+          <Route path="/perfil" element={
+          <>
+            <NavBar />
+            <ShowPerfil />
+          </>
+          
           } />
       </Routes>
     </BrowserRouter>

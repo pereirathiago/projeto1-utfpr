@@ -1,25 +1,61 @@
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { useNavigate } from 'react-router-dom';
+
 function Home() {
-  // Dados fictícios para teste
-  const dados = [
-    {
-      comodo: 'Sala',
-      sinal24: -60,
-      sinal5: -65,
-      velocidade24: 45.2,
-      velocidade5: 120.3,
-      interferencia: -80,
-      dataHora: '2025-05-09 14:32',
-    },
-    {
-      comodo: 'Quarto',
-      sinal24: -70,
-      sinal5: -68,
-      velocidade24: 30.5,
-      velocidade5: 90.7,
-      interferencia: -75,
-      dataHora: '2025-05-09 14:40',
-    },
-  ];
+  const [dados, setDados] = useState([]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/');
+      return;
+    }
+
+    const fetchMedicoes = async () => {
+      try {
+        const response = await axios.post(
+          `${process.env.REACT_APP_API_URL}/medicoes/list`,
+          {
+            search: "",
+            page: 1,
+            pageSize: 20,
+            order: "-comodo",
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        // Formatar a data e salvar os dados
+        const formatados = response.data.items.map(item => ({
+          comodo: item.nomeComodo,
+          sinal24: item.nivelSinal2_4ghz,
+          sinal5: item.nivelSinal5ghz,
+          velocidade24: item.velocidade2_4ghz,
+          velocidade5: item.velocidade5ghz,
+          interferencia: item.interferencia,
+          dataHora: new Date(item.dataHora).toLocaleString("pt-BR", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+        }));
+
+        setDados(formatados);
+      } catch (error) {
+        console.error("Erro ao buscar medições:", error);
+        alert("Erro ao carregar medições.");
+      }
+    };
+
+    fetchMedicoes();
+  }, [navigate]);
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import InputField from '../components/InputField';
@@ -8,6 +8,28 @@ export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' });
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+
+    if (token) {
+      axios.get(`${process.env.REACT_APP_API_URL}/users/profile`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then(() => {
+        navigate('/home'); // Token válido, redireciona
+      })
+      .catch((err) => {
+        console.warn('Token inválido ou expirado:', err);
+        // token inválido, remove do localStorage
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        localStorage.removeItem('refreshToken');
+      });
+    }
+  }, [navigate]);
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -15,7 +37,6 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Codifica a senha em Base64
     const formData = {
       email: form.email,
       password: btoa(form.password),
@@ -34,7 +55,6 @@ export default function Login() {
       alert('Falha no login. Verifique suas credenciais.');
     }
   };
-
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">

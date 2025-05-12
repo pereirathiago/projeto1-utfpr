@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import InputField from '../components/InputField'
 import { useNavigate } from 'react-router-dom'
 import { PrimaryButton, CreateAccountButton } from '../components/PrimaryButton'
@@ -12,6 +12,27 @@ export default function CadastroUsuario() {
   })
 
   const navigate = useNavigate()
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+
+    if (token) {
+      axios.get(`${process.env.REACT_APP_API_URL}/users/profile`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then(() => {
+          navigate('/home'); // Token válido, redireciona
+        })
+        .catch((err) => {
+          console.warn('Token inválido ou expirado:', err);
+          // token inválido, remove do localStorage
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          localStorage.removeItem('refreshToken');
+        });
+    }
+  }, [navigate]);
 
   const handleChange = (e) => {
     setFormData({
