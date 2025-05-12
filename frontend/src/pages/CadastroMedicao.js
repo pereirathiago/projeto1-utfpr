@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
+import Swal from 'sweetalert2';
 
 export default function Cadastro() {
     const [formData, setFormData] = useState({
@@ -34,7 +35,12 @@ export default function Cadastro() {
             setComodos(response.data.items);
         } catch (error) {
             console.error('Erro ao buscar cômodos:', error);
-            alert('Erro ao carregar os cômodos.');
+            Swal.fire({
+                title: 'Erro',
+                text: 'Erro ao carregar os cômodos.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
         }
     };
 
@@ -74,7 +80,11 @@ export default function Cadastro() {
             );
 
             console.log('Medição cadastrada:', response.data);
-            alert('Medição cadastrada com sucesso!');
+            Swal.fire({
+                title: 'Sucesso',
+                text: 'Medição cadastrada com sucesso!',
+                icon: 'success'
+            });
 
             // Opcional: limpar o formulário
             setFormData({
@@ -88,7 +98,11 @@ export default function Cadastro() {
             });
         } catch (error) {
             console.error('Erro ao cadastrar medição:', error);
-            alert('Erro ao cadastrar medição. Verifique os dados e tente novamente.');
+            Swal.fire({
+                title: 'Erro',
+                text: 'Erro ao cadastrar medição. Verifique os dados e tente novamente.',
+                icon: 'error'
+            });
         }
     };
 
@@ -149,7 +163,7 @@ export default function Cadastro() {
                     step="1"
                 />
                 <input
-                label="Velocidade 5 GHz (Mbps)"
+                    label="Velocidade 5 GHz (Mbps)"
                     name="velocidade5"
                     placeholder="Velocidade 5 GHz (Mbps)"
                     value={formData.velocidade5}

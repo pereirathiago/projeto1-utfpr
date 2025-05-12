@@ -3,6 +3,7 @@ import InputField from '../components/InputField'
 import { useNavigate } from 'react-router-dom'
 import { PrimaryButton, CreateAccountButton } from '../components/PrimaryButton'
 import axios from 'axios'
+import Swal from 'sweetalert2';
 
 export default function CadastroUsuario() {
   const [formData, setFormData] = useState({
@@ -46,18 +47,40 @@ export default function CadastroUsuario() {
     try {
       const response = await axios.post(`${process.env.REACT_APP_API_URL}/users`, formData)
       console.log('Usuário cadastrado com sucesso:', response.data)
-      alert('Usuário cadastrado com sucesso!')
-      navigate('/') // Redireciona para o login
+      // Success message
+      Swal.fire({
+        title: 'Sucesso!',
+        text: 'Usuário cadastrado com sucesso!',
+        icon: 'success',
+        confirmButtonText: 'OK'
+      }).then(() => {
+        navigate('/') // Redireciona para o login
+      })
     } catch (error) {
       switch (error.response?.status) {
         case 400:
-          alert('Erro: Dados inválidos. Verifique os campos e tente novamente.')
+          Swal.fire({
+            title: 'Erro!',
+            text: 'Dados inválidos. Verifique os campos e tente novamente.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+          })
           break
         case 409:
-          alert('Erro: Email já cadastrado.')
+          Swal.fire({
+            title: 'Erro!',
+            text: 'Email já cadastrado.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+          })
           break
         default:
-          alert('Erro ao cadastrar usuário. Tente novamente mais tarde.')
+          Swal.fire({
+            title: 'Erro!',
+            text: 'Erro ao cadastrar usuário. Tente novamente mais tarde.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+          })
       }
     }
   }

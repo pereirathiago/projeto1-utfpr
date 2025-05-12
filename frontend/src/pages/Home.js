@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 function Home() {
   const [dados, setDados] = useState([]);
@@ -50,7 +51,11 @@ function Home() {
         setDados(formatados);
       } catch (error) {
         console.error("Erro ao buscar medições:", error);
-        alert("Erro ao carregar medições.");
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro',
+          text: 'Erro ao carregar medições.'
+        });
       }
     };
 

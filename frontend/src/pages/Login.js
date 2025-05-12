@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import InputField from '../components/InputField';
 import { PrimaryButton, CreateAccountButton } from '../components/PrimaryButton';
+import Swal from 'sweetalert2';
 
 export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' });
@@ -52,7 +53,11 @@ export default function Login() {
       navigate('/home');
     } catch (error) {
       console.error('Erro no login:', error);
-      alert('Falha no login. Verifique suas credenciais.');
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro no login',
+        text: 'Falha no login. Verifique suas credenciais.',
+      });
     }
   };
 

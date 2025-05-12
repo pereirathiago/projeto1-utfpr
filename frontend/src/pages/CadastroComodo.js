@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import InputField from "../components/InputField";
 import { PrimaryButton } from "../components/PrimaryButton";
 import axios from "axios";
+import Swal from 'sweetalert2';
 
 export default function EdicaoComodo() {
     const [formData, setFormData] = useState({ nome: '', id: '' });
@@ -31,7 +32,11 @@ export default function EdicaoComodo() {
             setComodos(response.data.items);
         } catch (error) {
             console.error('Erro ao buscar cômodos:', error);
-            alert('Erro ao buscar cômodos.');
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro',
+                text: 'Erro ao buscar cômodos.',
+            });
         }
     };
 
@@ -59,7 +64,11 @@ export default function EdicaoComodo() {
                         },
                     }
                 );
-                alert('Cômodo atualizado com sucesso!');
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Sucesso',
+                    text: 'Cômodo atualizado com sucesso!'
+                });
             } else {
                 await axios.post(
                     `${process.env.REACT_APP_API_URL}/comodos`,
@@ -70,7 +79,11 @@ export default function EdicaoComodo() {
                         },
                     }
                 );
-                alert('Cômodo cadastrado com sucesso!');
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Sucesso',
+                    text: 'Cômodo cadastrado com sucesso!'
+                });
             }
 
             setFormData({ nome: '', id: '' });
@@ -78,7 +91,11 @@ export default function EdicaoComodo() {
             fetchComodos();
         } catch (error) {
             console.error('Erro ao salvar cômodo:', error);
-            alert('Erro ao salvar cômodo. Tente novamente mais tarde.');
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro',
+                text: 'Erro ao salvar cômodo. Tente novamente mais tarde.'
+            });
         }
     };
 
