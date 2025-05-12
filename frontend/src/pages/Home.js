@@ -32,22 +32,22 @@ function Home() {
           }
         );
 
-        const formatados = response.data.items.map(item => ({
-          id: item.id,
-          comodo: item.nomeComodo,
-          sinal24: item.nivelSinal2_4ghz,
-          sinal5: item.nivelSinal5ghz,
-          velocidade24: item.velocidade2_4ghz,
-          velocidade5: item.velocidade5ghz,
-          interferencia: item.interferencia,
-          dataHora: new Date(item.dataHora).toLocaleString("pt-BR", {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
-        }));
+        const formatados = response.data.items.map(item => {
+          const [date, time] = item.dataHora.replace('Z', '').split('T');
+          const [year, month, day] = date.split('-');
+          const [hours, minutes] = time.split(':');
+          const formattedDateTime = `${day}/${month}/${year}, ${hours}:${minutes}`;
+          return {
+            id: item.id,
+            comodo: item.nomeComodo,
+            sinal24: item.nivelSinal2_4ghz,
+            sinal5: item.nivelSinal5ghz,
+            velocidade24: item.velocidade2_4ghz,
+            velocidade5: item.velocidade5ghz,
+            interferencia: item.interferencia,
+            dataHora: formattedDateTime,
+          };
+        });
 
         setDados(formatados);
       } catch (error) {
@@ -75,6 +75,7 @@ function Home() {
       });
 
       // Redireciona para a tela de edição, passando os dados via state
+      console.log(item.id);
       navigate('/editamedicao', { state: response.data });
 
     } catch (error) {
