@@ -285,9 +285,13 @@ class MedicoesRepository implements IMedicoesRepository {
 
 
   // multi delete
-  async multiDelete(ids: string[]): Promise<HttpResponse> {
+  async multiDelete(ids: string[], userId: string): Promise<HttpResponse> {
     try {
-      await this.repository.delete(ids)
+      await this.repository.createQueryBuilder()
+        .delete()
+        .where("id IN (:...ids)", { ids })
+        .andWhere("user_id = :userId", { userId })
+        .execute()
 
       return noContent()
     } catch (err) {

@@ -10,6 +10,7 @@ import { ImportMedicoesController } from '@modules/comum/use-cases/medicoes/impo
 import multer from 'multer'
 import { DeleteMedicoesController } from '@modules/comum/use-cases/medicoes/delete-medicoes/delete-medicoes-controller'
 import { ListMediasComodoMedicoesController } from '@modules/comum/use-cases/medicoes/list-medias-comodo-medicoes/list-medias-comodo-medicoes-controller'
+import { MultiDeleteMedicoesController } from '@modules/comum/use-cases/medicoes/multi-delete-medicoes/multi-delete-medicoes-controller'
 
 const medicoesRoutes = Router()
 const upload = multer({ storage: multer.memoryStorage() })
@@ -23,6 +24,7 @@ const getMedicoesController = new GetMedicoesController()
 const updateMedicoesController = new UpdateMedicoesController()
 const getModeloMedicoesController = new GetMedicoesModelController()
 const deleteMedicoesController = new DeleteMedicoesController()
+const multiDeleteMedicoesController = new MultiDeleteMedicoesController()
 
 medicoesRoutes.post('/', ensureAuthenticated, createMedicaoController.handle.bind(createMedicaoController))
 medicoesRoutes.post('/import', ensureAuthenticated, upload.single('file'), importMedicoesController.handle.bind(importMedicoesController))
@@ -32,6 +34,7 @@ medicoesRoutes.get('/count', ensureAuthenticated, countMedicoesCOntroller.handle
 medicoesRoutes.get('/modelo', ensureAuthenticated, getModeloMedicoesController.handle.bind(getModeloMedicoesController))
 medicoesRoutes.get('/:id', ensureAuthenticated, getMedicoesController.handle.bind(getMedicoesController))
 medicoesRoutes.put('/:id', ensureAuthenticated, updateMedicoesController.handle.bind(updateMedicoesController))
+medicoesRoutes.delete('/multi-delete', ensureAuthenticated, multiDeleteMedicoesController.handle.bind(multiDeleteMedicoesController))
 medicoesRoutes.delete('/:id', ensureAuthenticated, deleteMedicoesController.handle.bind(deleteMedicoesController))
 
 export { medicoesRoutes }
