@@ -3,6 +3,7 @@ import InputField from "../components/InputField";
 import { PrimaryButton } from "../components/PrimaryButton";
 import axios from "axios";
 import Swal from 'sweetalert2';
+import { useNavigate } from "react-router-dom";
 
 export default function EdicaoComodo() {
     const [formData, setFormData] = useState({ nome: '', id: '' });
@@ -10,6 +11,7 @@ export default function EdicaoComodo() {
     const [page] = useState(1);
     const [pageSize] = useState(20);
     const [isEditing, setIsEditing] = useState(false);
+    const navigate = useNavigate();
 
     const token = localStorage.getItem('token');
 
@@ -41,6 +43,11 @@ export default function EdicaoComodo() {
     };
 
     useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            navigate('/');
+            return;
+        }
         fetchComodos();
     }, []);
 

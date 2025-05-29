@@ -18,16 +18,16 @@ export default function Login() {
           Authorization: `Bearer ${token}`,
         },
       })
-      .then(() => {
-        navigate('/home'); // Token válido, redireciona
-      })
-      .catch((err) => {
-        console.warn('Token inválido ou expirado:', err);
-        // token inválido, remove do localStorage
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        localStorage.removeItem('refreshToken');
-      });
+        .then(() => {
+          navigate('/home'); // Token válido, redireciona
+        })
+        .catch((err) => {
+          console.warn('Token inválido ou expirado:', err);
+          // token inválido, remove do localStorage
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          localStorage.removeItem('refreshToken');
+        });
     }
   }, [navigate]);
 

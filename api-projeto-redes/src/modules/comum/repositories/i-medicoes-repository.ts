@@ -11,11 +11,12 @@ interface IMedicoesRepository {
     order: string,
     filter: string
   ): Promise<HttpResponse>
+  listMediaByComodo(userId: string): Promise<HttpResponse>
   count(search: string, filter: string): Promise<HttpResponse>
   get(id: string, userId: string): Promise<HttpResponse>
   update(data: IMedicaoDTO): Promise<HttpResponse>
   delete(id: string): Promise<HttpResponse>
-  multiDelete(ids: string[]): Promise<HttpResponse>
+  multiDelete(ids: string[], userId: string): Promise<HttpResponse>
 }
 
 export { IMedicoesRepository }

@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import Swal from 'sweetalert2';
+import { useNavigate } from 'react-router-dom';
 
 export default function Cadastro() {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         comodo: '',
         sinal24: '',
@@ -45,6 +47,11 @@ export default function Cadastro() {
     };
 
     useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            navigate('/');
+            return;
+        }
         fetchComodos();
     }, []);
 
