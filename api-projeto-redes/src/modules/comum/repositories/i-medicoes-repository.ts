@@ -16,7 +16,7 @@ interface IMedicoesRepository {
   get(id: string, userId: string): Promise<HttpResponse>
   update(data: IMedicaoDTO): Promise<HttpResponse>
   delete(id: string): Promise<HttpResponse>
-  multiDelete(ids: string[]): Promise<HttpResponse>
+  multiDelete(ids: string[], userId: string): Promise<HttpResponse>
 }
 
 export { IMedicoesRepository }
