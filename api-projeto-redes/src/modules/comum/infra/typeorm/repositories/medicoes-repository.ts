@@ -143,6 +143,29 @@ class MedicoesRepository implements IMedicoesRepository {
     }
   }
 
+  async listMediaByComodo(userId: string): Promise<HttpResponse> {
+    try {
+      const medicoes = await this.repository.createQueryBuilder('med')
+        .select([
+          'com.id AS "comodoId"',
+          'com.nome AS "nomeComodo"',
+          'AVG(med.nivel_sinal_2_4ghz) AS "mediaSinal2_4ghz"',
+          'AVG(med.nivel_sinal_5ghz) AS "mediaSinal5ghz"',
+          'AVG(med.velocidade_2_4ghz) AS "mediaVelocidade2_4ghz"',
+          'AVG(med.velocidade_5ghz) AS "mediaVelocidade5ghz"',
+          'AVG(med.interferencia) AS "mediaInterferencia"',
+        ])
+        .leftJoin('med.comodo', 'com')
+        .where('med.user.id = :userId', { userId })
+        .groupBy('com.id')
+        .getRawMany()
+
+      return ok(medicoes)
+    } catch (err) {
+      return serverError(err)
+    }
+  }
+
   // count
   async count(
     search: string,
