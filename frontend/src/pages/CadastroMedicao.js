@@ -142,6 +142,7 @@ export default function Cadastro() {
                     required
                     className="border p-2 rounded"
                     type="number"
+                    max="0"
                 />
                 <input
                     name="sinal5"
@@ -151,6 +152,7 @@ export default function Cadastro() {
                     required
                     className="border p-2 rounded"
                     type="number"
+                    max="0"
                 />
                 <input
                     name="velocidade24"
@@ -161,6 +163,7 @@ export default function Cadastro() {
                     className="border p-2 rounded"
                     type="number"
                     step="1"
+                    min="0"
                 />
                 <input
                     label="Velocidade 5 GHz (Mbps)"
@@ -172,6 +175,7 @@ export default function Cadastro() {
                     className="border p-2 rounded"
                     type="number"
                     step="1"
+                    min="0"
                 />
                 <input
                     name="interferencia"
@@ -181,6 +185,7 @@ export default function Cadastro() {
                     required
                     className="border p-2 rounded"
                     type="number"
+                    max="0"
                 />
                 <input
                     type="datetime-local"

@@ -10,6 +10,7 @@ import CadastroMedicao from './pages/CadastroMedicao';
 import CadastroUsuario from './pages/CadastroUsuario';
 import CadastroComodo from './pages/CadastroComodo';
 import ShowPerfil from './pages/Perfil';
+import Edita from './pages/EditaMedicao';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -50,6 +51,13 @@ root.render(
           <>
             <NavBar />
             <ShowPerfil />
+          </>
+          
+          } />
+          <Route path="/editamedicao" element={
+          <>
+            <NavBar />
+            <Edita />
           </>
           
           } />
