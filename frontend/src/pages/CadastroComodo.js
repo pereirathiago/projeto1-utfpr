@@ -11,7 +11,7 @@ export default function EdicaoComodo() {
     const [page] = useState(1);
     const [pageSize] = useState(20);
     const [isEditing, setIsEditing] = useState(false);
-  const navigate = useNavigate();
+    const navigate = useNavigate();
 
     const token = localStorage.getItem('token');
 

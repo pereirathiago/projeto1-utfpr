@@ -12,55 +12,26 @@ import CadastroComodo from './pages/CadastroComodo';
 import ShowPerfil from './pages/Perfil';
 import Edita from './pages/EditaMedicao';
 
+const WithNavBar = ({ children }) => (
+  <>
+    <NavBar />
+    {children}
+  </>
+);
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={
-          <>
-            <Login/>
-          </>
-        } />
-        <Route path="/home" element={
-          <>
-            <NavBar />
-            <Home />
-          </>
-          } />
-          <Route path="/cadastromedicao" element={
-          <>
-            <NavBar />
-            <CadastroMedicao />
-          </>
-          } />
-          <Route path="/cadastroUsuario" element={
-          <>
-            <CadastroUsuario />
-          </>
-          
-          } />
-          <Route path="/cadastrocomodo" element={
-          <>
-            <NavBar />
-            <CadastroComodo />
-          </>
-          
-          } />
-          <Route path="/perfil" element={
-          <>
-            <NavBar />
-            <ShowPerfil />
-          </>
-          
-          } />
-          <Route path="/editamedicao" element={
-          <>
-            <NavBar />
-            <Edita />
-          </>
-          
-          } />
+        <Route path="/" element={<Login />} />
+        <Route path="/cadastroUsuario" element={<CadastroUsuario />} />
+
+        <Route path="/home" element={<WithNavBar><Home /></WithNavBar>} />
+        <Route path="/cadastromedicao" element={<WithNavBar><CadastroMedicao /></WithNavBar>} />
+        <Route path="/cadastrocomodo" element={<WithNavBar><CadastroComodo /></WithNavBar>} />
+        <Route path="/perfil" element={<WithNavBar><ShowPerfil /></WithNavBar>} />
+        <Route path="/editamedicao" element={<WithNavBar><Edita /></WithNavBar>} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>

@@ -4,7 +4,7 @@ import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 
 export default function Cadastro() {
-  const navigate = useNavigate();
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         comodo: '',
         sinal24: '',
