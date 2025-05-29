@@ -11,6 +11,7 @@ import CadastroUsuario from './pages/CadastroUsuario';
 import CadastroComodo from './pages/CadastroComodo';
 import ShowPerfil from './pages/Perfil';
 import Edita from './pages/EditaMedicao';
+import Graficos from './pages/Graficos';
 
 const WithNavBar = ({ children }) => (
   <>
@@ -31,6 +32,7 @@ root.render(
         <Route path="/cadastromedicao" element={<WithNavBar><CadastroMedicao /></WithNavBar>} />
         <Route path="/cadastrocomodo" element={<WithNavBar><CadastroComodo /></WithNavBar>} />
         <Route path="/perfil" element={<WithNavBar><ShowPerfil /></WithNavBar>} />
+        <Route path="/graficos" element={<WithNavBar><Graficos /></WithNavBar>} />
         <Route path="/editamedicao" element={<WithNavBar><Edita /></WithNavBar>} />
       </Routes>
     </BrowserRouter>

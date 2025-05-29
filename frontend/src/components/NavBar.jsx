@@ -26,6 +26,7 @@ export default function NavBar() {
 
     const navigation = [
         { name: 'Medições', href: '/home' },
+        { name: 'Graficos', href: '/graficos' },
         { name: 'Cadastro de Medição', href: '/cadastromedicao' },
         { name: 'Cadastro de Cômodo', href: '/cadastrocomodo' },
     ];
@@ -46,12 +47,18 @@ export default function NavBar() {
 
         axios.get('http://localhost:3333/users/profile', {
             headers: {
-                Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
             }
         }).then(res => {
             setUser(res.data);
-        }).catch(() => {
+        }).catch(error => {
             console.error('Erro ao carregar dados do usuário');
+            if (error.response && error.response.status === 401) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            localStorage.removeItem('refreshToken');
+            navigate('/');
+            }
         });
     }, [navigate]);
 

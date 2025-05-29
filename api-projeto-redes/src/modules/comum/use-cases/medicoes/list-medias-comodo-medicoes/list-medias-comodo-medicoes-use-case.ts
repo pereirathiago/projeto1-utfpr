@@ -33,11 +33,11 @@ class ListMediaComodosMedicoesUseCase {
 
     const medias = resultado.data.map((row: any) => ({
       nomeComodo: row.nomeComodo,
-      mediaSinal2_4ghz: parseFloat(row.mediaSinal2_4ghz),
-      mediaSinal5ghz: parseFloat(row.mediaSinal5ghz),
-      mediaVelocidade2_4ghz: parseFloat(row.mediaVelocidade2_4ghz),
-      mediaVelocidade5ghz: parseFloat(row.mediaVelocidade5ghz),
-      mediaInterferencia: parseFloat(row.mediaInterferencia)
+      mediaSinal2_4ghz: parseFloat(row.mediaSinal2_4ghz).toFixed(1),
+      mediaSinal5ghz: parseFloat(row.mediaSinal5ghz).toFixed(1),
+      mediaVelocidade2_4ghz: parseFloat(row.mediaVelocidade2_4ghz).toFixed(1),
+      mediaVelocidade5ghz: parseFloat(row.mediaVelocidade5ghz).toFixed(1),
+      mediaInterferencia: parseFloat(row.mediaInterferencia).toFixed(1)
     }));
 
     return {
