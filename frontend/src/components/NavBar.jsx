@@ -64,7 +64,7 @@ export default function NavBar() {
 
     const avatarUrl = user?.avatarUrl && user.avatarUrl !== '/avatar/null'
         ? `http://localhost:3333${user.avatarUrl}`
-        : 'https://i.pinimg.com/1200x/2c/47/d5/2c47d5dd5b532f83bb55c4cd6f5bd1ef.jpg';
+        : 'https://avatar.iran.liara.run/public';
 
     return (
         <Disclosure as="nav" className="bg-gray-800">

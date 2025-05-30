@@ -80,8 +80,7 @@ export default function ShowPerfil() {
     e.preventDefault();
 
     const dados = {
-      ...form,
-      password: form.password ? btoa(form.password) : undefined,
+      ...form
     };
 
     try {
@@ -118,7 +117,7 @@ export default function ShowPerfil() {
             src={
               perfil.avatarUrl && perfil.avatarUrl !== '/avatar/null'
                 ? `http://localhost:3333${perfil.avatarUrl}`
-                : 'https://via.placeholder.com/150?text=Avatar'
+                : 'https://avatar.iran.liara.run/public'
             }
             alt="Avatar"
             className="w-32 h-32 mx-auto rounded-full object-cover border-4 border-gray-300 cursor-pointer hover:opacity-80 transition"
