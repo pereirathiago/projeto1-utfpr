@@ -28,16 +28,38 @@ class UserRepository implements IUserRepository {
 
     await this.repository.save(user)
   }
+
   async findByEmail(email: string): Promise<User> {
     const newEmail = email.toLowerCase()
     const user = await this.repository.findOne({ where: { email: newEmail } })
 
     return user
   }
+
   async findById(id: string): Promise<User> {
     const user = await this.repository.findOne({ where: { id } })
 
     return user
+  }
+
+  async update(id: string, {
+    name,
+    email,
+    password,
+    avatar
+  }: IUserDTO): Promise<void> {
+    const user = await this.repository.findOne({ where: { id } })
+
+    if (!user) {
+      throw new Error("User not found")
+    }
+
+    user.name = name || user.name
+    user.email = email ? email.toLowerCase() : user.email
+    user.password = password || user.password
+    user.avatar = avatar || user.avatar
+
+    await this.repository.save(user)
   }
 }
 

@@ -12,7 +12,6 @@ function Home() {
   const [ordenacao, setOrdenacao] = useState({ campo: "comodo", direcao: "asc" });
   const [modoSelecao, setModoSelecao] = useState(false);
   const [selecionados, setSelecionados] = useState([]);
-  const longPressTimer = useRef(null);
   const tabelaRef = useRef(null);
 
   const navigate = useNavigate();
@@ -121,11 +120,12 @@ function Home() {
     if (confirm.isConfirmed) {
       try {
         const token = localStorage.getItem('token');
-        await Promise.all(selecionados.map(id =>
-          axios.delete(`${process.env.REACT_APP_API_URL}/medicoes/${id}`, {
+        await axios.delete(`${process.env.REACT_APP_API_URL}/medicoes/multi-delete`, 
+          { 
             headers: { Authorization: `Bearer ${token}` },
-          })
-        ));
+            data: { ids: selecionados }
+          }
+        );
         setDados(prev => prev.filter(item => !selecionados.includes(item.id)));
         setSelecionados([]);
         setModoSelecao(false);
@@ -143,120 +143,147 @@ function Home() {
     );
   };
 
-  const iniciarSelecaoComDelay = (id) => {
-    longPressTimer.current = setTimeout(() => {
-      setModoSelecao(true);
-      setSelecionados([id]);
-    }, 2000);
-  };
-
-  const cancelarSelecaoComDelay = () => {
-    clearTimeout(longPressTimer.current);
-  };
-
-  const cancelarSelecao = () => {
-    setModoSelecao(false);
-    setSelecionados([]);
-  };
-
   return (
-    <>
-      <button
-        onClick={gerarPdf}
-        className="mb-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-      >
-        Baixar PDF
-      </button>
-
-      <div ref={tabelaRef} className="overflow-auto rounded shadow bg-white">
-        <h1 className="text-2xl font-bold mb-4 text-gray-800">Medições de Internet</h1>
-        <input data-html2canvas-ignore="true"
-          type="text"
-          placeholder="Buscar por cômodo"
-          className="mb-4 p-2 border rounded w-full max-w-xs"
-          value={filtro}
-          onChange={(e) => setFiltro(e.target.value)}
-        />
-
-        <div className="overflow-auto rounded shadow bg-white">
-          {modoSelecao && (
-            <div className="flex justify-between px-4 py-2 bg-gray-100 border-b">
+    <div className="p-6 bg-gray-100 min-h-screen">
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold text-gray-800">Medições de Internet</h1>
+        <div className="flex gap-2">
+          {!modoSelecao ? (
+            <button
+              onClick={() => setModoSelecao(true)}
+              className="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700"
+            >
+              Selecionar múltiplos
+            </button>
+          ) : (
+            <>
               <button
                 onClick={handleDeleteSelecionados}
-                className="bg-red-600 text-white px-4 py-1 rounded hover:bg-red-700"
+                disabled={selecionados.length === 0}
+                className="bg-red-600 text-white px-4 py-1 rounded hover:bg-red-700 disabled:opacity-50"
               >
-                Excluir medições selecionadas
+                Excluir selecionados
               </button>
               <button
-                onClick={cancelarSelecao}
+                onClick={() => {
+                  setModoSelecao(false);
+                  setSelecionados([]);
+                }}
                 className="text-gray-600 hover:underline"
               >
-                Cancelar seleção
+                Cancelar
               </button>
-            </div>
+            </>
           )}
-          <table className="min-w-full divide-y divide-gray-200 text-sm text-gray-700">
-            <thead className="bg-gray-200">
-              <tr>
-                {modoSelecao && <th className="px-2 py-2"></th>}
-                <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("comodo")}>Cômodo {getSetaOrdenacao("comodo")}</th>
-                <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("sinal2_4ghz")}>Sinal 2.4 GHz (dBm) {getSetaOrdenacao("sinal2_4ghz")}</th>
-                <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("sinal5ghz")}>Sinal 5 GHz (dBm) {getSetaOrdenacao("sinal5ghz")}</th>
-                <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("velocidade2_4ghz")}>Velocidade 2.4 GHz (Mbps) {getSetaOrdenacao("velocidade2_4ghz")}</th>
-                <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("velocidade5ghz")}>Velocidade 5 GHz (Mbps) {getSetaOrdenacao("velocidade5ghz")}</th>
-                <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("interferencia")}>Interferência (dBm) {getSetaOrdenacao("interferencia")}</th>
-                <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("dataHora")}>Data e Hora {getSetaOrdenacao("dataHora")}</th>
-                <th data-html2canvas-ignore="true" className="px-4 py-2 text-left">Ações</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {dados
-                .filter(item => item.comodo.toLowerCase().includes(filtro.toLowerCase()))
-                .map((linha, index) => (
-                  <tr
-                    key={linha.id}
-                    onMouseDown={() => iniciarSelecaoComDelay(linha.id)}
-                    onMouseUp={cancelarSelecaoComDelay}
-                    onMouseLeave={cancelarSelecaoComDelay}
-                    className={selecionados.includes(linha.id) ? "bg-yellow-100" : ""}
-                  >
-                    {modoSelecao && (
-                      <td className="px-2 py-2">
-                        <input
-                          type="checkbox"
-                          checked={selecionados.includes(linha.id)}
-                          onChange={() => handleSelect(linha.id)}
-                        />
-                      </td>
-                    )}
-                    <td className="px-4 py-2">{linha.comodo}</td>
-                    <td className="px-4 py-2">{linha.sinal24} dBm</td>
-                    <td className="px-4 py-2">{linha.sinal5} dBm</td>
-                    <td className="px-4 py-2">{linha.velocidade24} Mbps</td>
-                    <td className="px-4 py-2">{linha.velocidade5} Mbps</td>
-                    <td className="px-4 py-2">{linha.interferencia} dBm</td>
-                    <td className="px-4 py-2">{linha.dataHora}</td>
-                    <td data-html2canvas-ignore="true" className="px-4 py-2 flex gap-2">
-                      <button
-                        onClick={() => handleEdit(index)}
-                        className="text-blue-600 hover:text-blue-800"
-                      >
-                        <PencilSquareIcon className="h-5 w-5" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteSelecionados(index)}
-                        className="text-red-600 hover:text-red-800"
-                      >
-                        <TrashIcon className="h-5 w-5" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
         </div>
       </div>
-    </>
+
+      <input
+        type="text"
+        placeholder="Buscar por cômodo"
+        className="mb-4 p-2 border rounded w-full max-w-xs"
+        value={filtro}
+        onChange={(e) => setFiltro(e.target.value)}
+      />
+
+      <div className="overflow-auto rounded shadow bg-white">
+        <table className="min-w-full divide-y divide-gray-200 text-sm text-gray-700">
+          <thead className="bg-gray-200">
+            <tr>
+              {modoSelecao && (
+                <th className="px-2 py-2">
+                  <input
+                    type="checkbox"
+                    checked={selecionados.length === dados.length}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelecionados(dados.map(d => d.id));
+                      } else {
+                        setSelecionados([]);
+                      }
+                    }}
+                  />
+                </th>
+              )}
+              <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("comodo")}>Cômodo {getSetaOrdenacao("comodo")}</th>
+              <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("sinal2_4ghz")}>Sinal 2.4 GHz {getSetaOrdenacao("sinal2_4ghz")}</th>
+              <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("sinal5ghz")}>Sinal 5 GHz {getSetaOrdenacao("sinal5ghz")}</th>
+              <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("velocidade2_4ghz")}>Velocidade 2.4 GHz {getSetaOrdenacao("velocidade2_4ghz")}</th>
+              <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("velocidade5ghz")}>Velocidade 5 GHz {getSetaOrdenacao("velocidade5ghz")}</th>
+              <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("interferencia")}>Interferência {getSetaOrdenacao("interferencia")}</th>
+              <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("dataHora")}>Data e Hora {getSetaOrdenacao("dataHora")}</th>
+              <th className="px-4 py-2 text-left">Ações</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {dados
+              .filter(item => item.comodo.toLowerCase().includes(filtro.toLowerCase()))
+              .map((linha, index) => (
+                <tr
+                  key={linha.id}
+                  className={selecionados.includes(linha.id) ? "bg-yellow-100" : ""}
+                >
+                  {modoSelecao && (
+                    <td className="px-2 py-2">
+                      <input
+                        type="checkbox"
+                        checked={selecionados.includes(linha.id)}
+                        onChange={() => handleSelect(linha.id)}
+                      />
+                    </td>
+                  )}
+                  <td className="px-4 py-2">{linha.comodo}</td>
+                  <td className="px-4 py-2">{linha.sinal24} dBm</td>
+                  <td className="px-4 py-2">{linha.sinal5} dBm</td>
+                  <td className="px-4 py-2">{linha.velocidade24} Mbps</td>
+                  <td className="px-4 py-2">{linha.velocidade5} Mbps</td>
+                  <td className="px-4 py-2">{linha.interferencia} dBm</td>
+                  <td className="px-4 py-2">{linha.dataHora}</td>
+                  <td className="px-4 py-2 flex gap-2">
+                    <button
+                      onClick={() => handleEdit(index)}
+                      className="text-blue-600 hover:text-blue-800"
+                    >
+                      <PencilSquareIcon className="h-5 w-5" />
+                    </button>
+                    <button
+                      onClick={async () => {
+                        const confirm = await Swal.fire({
+                          title: 'Tem certeza?',
+                          text: 'Deseja excluir esta medição?',
+                          icon: 'warning',
+                          showCancelButton: true,
+                          confirmButtonColor: '#d33',
+                          cancelButtonColor: '#aaa',
+                          confirmButtonText: 'Sim, excluir',
+                          cancelButtonText: 'Cancelar',
+                        });
+
+                        if (confirm.isConfirmed) {
+                          try {
+                            const token = localStorage.getItem('token');
+                            await axios.delete(`${process.env.REACT_APP_API_URL}/medicoes/${linha.id}`, {
+                              headers: { Authorization: `Bearer ${token}` },
+                            });
+                            setDados(prev => prev.filter(item => item.id !== linha.id));
+                            Swal.fire('Excluído!', 'A medição foi removida com sucesso.', 'success');
+                          } catch (error) {
+                            console.error('Erro ao excluir:', error);
+                            Swal.fire('Erro!', 'Não foi possível excluir a medição.', 'error');
+                          }
+                        }
+                      }}
+                      className="text-red-600 hover:text-red-800"
+                    >
+                      <TrashIcon className="h-5 w-5" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 }
 

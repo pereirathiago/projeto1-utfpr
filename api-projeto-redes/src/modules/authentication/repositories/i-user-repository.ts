@@ -3,6 +3,7 @@ import { User } from "../infra/typeorm/entities/user";
 
 interface IUserRepository {
   create(data: IUserDTO): Promise<void>
+  update(id: string, data: IUserDTO): Promise<void>
   findByEmail(email: string): Promise<User>
   findById(id: string): Promise<User>
 }
