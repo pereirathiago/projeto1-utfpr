@@ -3,6 +3,8 @@ import { useEffect, useState, useRef } from "react";
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/solid';
+import html2pdf from "html2pdf.js";
+
 
 function Home() {
   const [dados, setDados] = useState([]);
@@ -11,12 +13,26 @@ function Home() {
   const [modoSelecao, setModoSelecao] = useState(false);
   const [selecionados, setSelecionados] = useState([]);
   const longPressTimer = useRef(null);
+  const tabelaRef = useRef(null);
 
   const navigate = useNavigate();
 
   useEffect(() => {
     buscarMedicoes();
   }, [ordenacao]);
+
+  const gerarPdf = () => {
+    const opt = {
+      margin: 0.5,
+      filename: 'relatorio_medicoes.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' }
+    };
+
+    html2pdf().set(opt).from(tabelaRef.current).save();
+  };
+
 
   const buscarMedicoes = async () => {
     const token = localStorage.getItem('token');
@@ -144,94 +160,103 @@ function Home() {
   };
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <h1 className="text-2xl font-bold mb-4 text-gray-800">Medições de Internet</h1>
-      <input
-        type="text"
-        placeholder="Buscar por cômodo"
-        className="mb-4 p-2 border rounded w-full max-w-xs"
-        value={filtro}
-        onChange={(e) => setFiltro(e.target.value)}
-      />
+    <>
+      <button
+        onClick={gerarPdf}
+        className="mb-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+      >
+        Baixar PDF
+      </button>
 
-      <div className="overflow-auto rounded shadow bg-white">
-        {modoSelecao && (
-          <div className="flex justify-between px-4 py-2 bg-gray-100 border-b">
-            <button
-              onClick={handleDeleteSelecionados}
-              className="bg-red-600 text-white px-4 py-1 rounded hover:bg-red-700"
-            >
-              Excluir medições selecionadas
-            </button>
-            <button
-              onClick={cancelarSelecao}
-              className="text-gray-600 hover:underline"
-            >
-              Cancelar seleção
-            </button>
-          </div>
-        )}
-        <table className="min-w-full divide-y divide-gray-200 text-sm text-gray-700">
-          <thead className="bg-gray-200">
-            <tr>
-              {modoSelecao && <th className="px-2 py-2"></th>}
-              <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("comodo")}>Cômodo {getSetaOrdenacao("comodo")}</th>
-              <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("sinal2_4ghz")}>Sinal 2.4 GHz (dBm) {getSetaOrdenacao("sinal2_4ghz")}</th>
-              <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("sinal5ghz")}>Sinal 5 GHz (dBm) {getSetaOrdenacao("sinal5ghz")}</th>
-              <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("velocidade2_4ghz")}>Velocidade 2.4 GHz (Mbps) {getSetaOrdenacao("velocidade2_4ghz")}</th>
-              <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("velocidade5ghz")}>Velocidade 5 GHz (Mbps) {getSetaOrdenacao("velocidade5ghz")}</th>
-              <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("interferencia")}>Interferência (dBm) {getSetaOrdenacao("interferencia")}</th>
-              <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("dataHora")}>Data e Hora {getSetaOrdenacao("dataHora")}</th>
-              <th className="px-4 py-2 text-left">Ações</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {dados
-              .filter(item => item.comodo.toLowerCase().includes(filtro.toLowerCase()))
-              .map((linha, index) => (
-                <tr
-                  key={linha.id}
-                  onMouseDown={() => iniciarSelecaoComDelay(linha.id)}
-                  onMouseUp={cancelarSelecaoComDelay}
-                  onMouseLeave={cancelarSelecaoComDelay}
-                  className={selecionados.includes(linha.id) ? "bg-yellow-100" : ""}
-                >
-                  {modoSelecao && (
-                    <td className="px-2 py-2">
-                      <input
-                        type="checkbox"
-                        checked={selecionados.includes(linha.id)}
-                        onChange={() => handleSelect(linha.id)}
-                      />
+      <div ref={tabelaRef} className="overflow-auto rounded shadow bg-white">
+        <h1 className="text-2xl font-bold mb-4 text-gray-800">Medições de Internet</h1>
+        <input data-html2canvas-ignore="true"
+          type="text"
+          placeholder="Buscar por cômodo"
+          className="mb-4 p-2 border rounded w-full max-w-xs"
+          value={filtro}
+          onChange={(e) => setFiltro(e.target.value)}
+        />
+
+        <div className="overflow-auto rounded shadow bg-white">
+          {modoSelecao && (
+            <div className="flex justify-between px-4 py-2 bg-gray-100 border-b">
+              <button
+                onClick={handleDeleteSelecionados}
+                className="bg-red-600 text-white px-4 py-1 rounded hover:bg-red-700"
+              >
+                Excluir medições selecionadas
+              </button>
+              <button
+                onClick={cancelarSelecao}
+                className="text-gray-600 hover:underline"
+              >
+                Cancelar seleção
+              </button>
+            </div>
+          )}
+          <table className="min-w-full divide-y divide-gray-200 text-sm text-gray-700">
+            <thead className="bg-gray-200">
+              <tr>
+                {modoSelecao && <th className="px-2 py-2"></th>}
+                <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("comodo")}>Cômodo {getSetaOrdenacao("comodo")}</th>
+                <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("sinal2_4ghz")}>Sinal 2.4 GHz (dBm) {getSetaOrdenacao("sinal2_4ghz")}</th>
+                <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("sinal5ghz")}>Sinal 5 GHz (dBm) {getSetaOrdenacao("sinal5ghz")}</th>
+                <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("velocidade2_4ghz")}>Velocidade 2.4 GHz (Mbps) {getSetaOrdenacao("velocidade2_4ghz")}</th>
+                <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("velocidade5ghz")}>Velocidade 5 GHz (Mbps) {getSetaOrdenacao("velocidade5ghz")}</th>
+                <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("interferencia")}>Interferência (dBm) {getSetaOrdenacao("interferencia")}</th>
+                <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("dataHora")}>Data e Hora {getSetaOrdenacao("dataHora")}</th>
+                <th data-html2canvas-ignore="true" className="px-4 py-2 text-left">Ações</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {dados
+                .filter(item => item.comodo.toLowerCase().includes(filtro.toLowerCase()))
+                .map((linha, index) => (
+                  <tr
+                    key={linha.id}
+                    onMouseDown={() => iniciarSelecaoComDelay(linha.id)}
+                    onMouseUp={cancelarSelecaoComDelay}
+                    onMouseLeave={cancelarSelecaoComDelay}
+                    className={selecionados.includes(linha.id) ? "bg-yellow-100" : ""}
+                  >
+                    {modoSelecao && (
+                      <td className="px-2 py-2">
+                        <input
+                          type="checkbox"
+                          checked={selecionados.includes(linha.id)}
+                          onChange={() => handleSelect(linha.id)}
+                        />
+                      </td>
+                    )}
+                    <td className="px-4 py-2">{linha.comodo}</td>
+                    <td className="px-4 py-2">{linha.sinal24} dBm</td>
+                    <td className="px-4 py-2">{linha.sinal5} dBm</td>
+                    <td className="px-4 py-2">{linha.velocidade24} Mbps</td>
+                    <td className="px-4 py-2">{linha.velocidade5} Mbps</td>
+                    <td className="px-4 py-2">{linha.interferencia} dBm</td>
+                    <td className="px-4 py-2">{linha.dataHora}</td>
+                    <td data-html2canvas-ignore="true" className="px-4 py-2 flex gap-2">
+                      <button
+                        onClick={() => handleEdit(index)}
+                        className="text-blue-600 hover:text-blue-800"
+                      >
+                        <PencilSquareIcon className="h-5 w-5" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteSelecionados(index)}
+                        className="text-red-600 hover:text-red-800"
+                      >
+                        <TrashIcon className="h-5 w-5" />
+                      </button>
                     </td>
-                  )}
-                  <td className="px-4 py-2">{linha.comodo}</td>
-                  <td className="px-4 py-2">{linha.sinal24} dBm</td>
-                  <td className="px-4 py-2">{linha.sinal5} dBm</td>
-                  <td className="px-4 py-2">{linha.velocidade24} Mbps</td>
-                  <td className="px-4 py-2">{linha.velocidade5} Mbps</td>
-                  <td className="px-4 py-2">{linha.interferencia} dBm</td>
-                  <td className="px-4 py-2">{linha.dataHora}</td>
-                  <td className="px-4 py-2 flex gap-2">
-                    <button
-                      onClick={() => handleEdit(index)}
-                      className="text-blue-600 hover:text-blue-800"
-                    >
-                      <PencilSquareIcon className="h-5 w-5" />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteSelecionados(index)}
-                      className="text-red-600 hover:text-red-800"
-                    >
-                      <TrashIcon className="h-5 w-5" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
