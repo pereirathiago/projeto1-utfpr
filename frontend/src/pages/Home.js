@@ -10,9 +10,11 @@ function Home() {
   const [ordenacao, setOrdenacao] = useState({ campo: "comodo", direcao: "asc" });
   const [modoSelecao, setModoSelecao] = useState(false);
   const [selecionados, setSelecionados] = useState([]);
+  const fileInputRef = useRef(null);
   const longPressTimer = useRef(null);
-
   const navigate = useNavigate();
+  const [mostrarImportBox, setMostrarImportBox] = useState(false);
+  const inputFileRef = useRef(null);
 
   useEffect(() => {
     buscarMedicoes();
@@ -143,49 +145,125 @@ function Home() {
     setSelecionados([]);
   };
 
+  const handleDownloadModelo = async () => {
+    const token = localStorage.getItem('token');
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/medicoes/modelo?format=xlsx`, {
+        headers: { Authorization: `Bearer ${token}` },
+        responseType: 'blob'
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'modelo_medicoes.xlsx');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      Swal.fire({ icon: 'error', title: 'Erro', text: 'Erro ao baixar modelo.' });
+    }
+  };
+
+  const handleUploadModelo = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const token = localStorage.getItem('token');
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      await axios.post(`${process.env.REACT_APP_API_URL}/medicoes/import`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      Swal.fire({ icon: 'success', title: 'Sucesso', text: 'Importação concluída com sucesso.' });
+      buscarMedicoes(); 
+    } catch (error) {
+      Swal.fire({ icon: 'error', title: 'Erro', text: 'Erro ao importar o arquivo.' });
+    }
+  };
+
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <h1 className="text-2xl font-bold mb-4 text-gray-800">Medições de Internet</h1>
-      <input
-        type="text"
-        placeholder="Buscar por cômodo"
-        className="mb-4 p-2 border rounded w-full max-w-xs"
-        value={filtro}
-        onChange={(e) => setFiltro(e.target.value)}
-      />
+      <div className="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center md:justify-between mb-6">
+        <input
+          type="text"
+          placeholder="Buscar por cômodo"
+          className="p-2 border rounded w-full md:max-w-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+          value={filtro}
+          onChange={(e) => setFiltro(e.target.value)}
+        />
+        <div className="relative w-full md:w-auto"> 
+          <button
+            onClick={() => setMostrarImportBox(prev => !prev)}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 w-full" // Botão sempre com largura total do seu contêiner relativo
+          >
+            Importar/Exportar
+          </button>
 
+          {mostrarImportBox && (
+            <div className="absolute right-0 mt-2 p-3 bg-white border border-gray-200 rounded-md shadow-xl w-full md:w-auto md:min-w-[240px] space-y-2 z-20">
+              <button
+                onClick={handleDownloadModelo}
+                className="bg-green-600 text-white px-3 py-2 rounded hover:bg-green-700 w-full text-left flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
+              >
+                Baixar modelo
+              </button>
+              <button
+                onClick={() => inputFileRef.current?.click()}
+                className="bg-purple-600 text-white px-3 py-2 rounded hover:bg-purple-700 w-full text-left flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50"
+              >
+                Upload modelo preenchido
+              </button>
+              <input
+                type="file"
+                accept=".xlsx"
+                ref={inputFileRef}
+                onChange={handleUploadModelo}
+                className="hidden"
+              />
+            </div>
+          )}
+        </div>
+      </div>
       <div className="overflow-auto rounded shadow bg-white">
         {modoSelecao && (
-          <div className="flex justify-between px-4 py-2 bg-gray-100 border-b">
+          <div className="flex justify-between items-center px-4 py-2 bg-gray-50 border-b border-gray-200">
             <button
               onClick={handleDeleteSelecionados}
-              className="bg-red-600 text-white px-4 py-1 rounded hover:bg-red-700"
+              className="bg-red-600 text-white px-4 py-1.5 rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
             >
               Excluir medições selecionadas
             </button>
             <button
               onClick={cancelarSelecao}
-              className="text-gray-600 hover:underline"
+              className="text-sm text-gray-600 hover:text-gray-800 hover:underline focus:outline-none"
             >
               Cancelar seleção
             </button>
           </div>
         )}
         <table className="min-w-full divide-y divide-gray-200 text-sm text-gray-700">
-          <thead className="bg-gray-200">
+          <thead className="bg-gray-100">
             <tr>
-              {modoSelecao && <th className="px-2 py-2"></th>}
-              <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("comodo")}>Cômodo {getSetaOrdenacao("comodo")}</th>
-              <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("sinal2_4ghz")}>Sinal 2.4 GHz (dBm) {getSetaOrdenacao("sinal2_4ghz")}</th>
-              <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("sinal5ghz")}>Sinal 5 GHz (dBm) {getSetaOrdenacao("sinal5ghz")}</th>
-              <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("velocidade2_4ghz")}>Velocidade 2.4 GHz (Mbps) {getSetaOrdenacao("velocidade2_4ghz")}</th>
-              <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("velocidade5ghz")}>Velocidade 5 GHz (Mbps) {getSetaOrdenacao("velocidade5ghz")}</th>
-              <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("interferencia")}>Interferência (dBm) {getSetaOrdenacao("interferencia")}</th>
-              <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("dataHora")}>Data e Hora {getSetaOrdenacao("dataHora")}</th>
-              <th className="px-4 py-2 text-left">Ações</th>
+              {modoSelecao && <th className="px-2 py-3"></th>}
+              <th className="px-4 py-3 text-left font-semibold text-gray-600 cursor-pointer" onClick={() => handleSort("comodo")}>Cômodo {getSetaOrdenacao("comodo")}</th>
+              <th className="px-4 py-3 text-left font-semibold text-gray-600 cursor-pointer" onClick={() => handleSort("sinal2_4ghz")}>Sinal 2.4 GHz (dBm) {getSetaOrdenacao("sinal2_4ghz")}</th>
+              <th className="px-4 py-3 text-left font-semibold text-gray-600 cursor-pointer" onClick={() => handleSort("sinal5ghz")}>Sinal 5 GHz (dBm) {getSetaOrdenacao("sinal5ghz")}</th>
+              <th className="px-4 py-3 text-left font-semibold text-gray-600 cursor-pointer" onClick={() => handleSort("velocidade2_4ghz")}>Velocidade 2.4 GHz (Mbps) {getSetaOrdenacao("velocidade2_4ghz")}</th>
+              <th className="px-4 py-3 text-left font-semibold text-gray-600 cursor-pointer" onClick={() => handleSort("velocidade5ghz")}>Velocidade 5 GHz (Mbps) {getSetaOrdenacao("velocidade5ghz")}</th>
+              <th className="px-4 py-3 text-left font-semibold text-gray-600 cursor-pointer" onClick={() => handleSort("interferencia")}>Interferência (dBm) {getSetaOrdenacao("interferencia")}</th>
+              <th className="px-4 py-3 text-left font-semibold text-gray-600 cursor-pointer" onClick={() => handleSort("dataHora")}>Data e Hora {getSetaOrdenacao("dataHora")}</th>
+              <th className="px-4 py-3 text-left font-semibold text-gray-600">Ações</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-gray-100 bg-white">
             {dados
               .filter(item => item.comodo.toLowerCase().includes(filtro.toLowerCase()))
               .map((linha, index) => (
@@ -194,37 +272,42 @@ function Home() {
                   onMouseDown={() => iniciarSelecaoComDelay(linha.id)}
                   onMouseUp={cancelarSelecaoComDelay}
                   onMouseLeave={cancelarSelecaoComDelay}
-                  className={selecionados.includes(linha.id) ? "bg-yellow-100" : ""}
+                  className={`${selecionados.includes(linha.id) ? "bg-yellow-100 hover:bg-yellow-200" : "hover:bg-gray-50"} transition-colors duration-150`}
                 >
                   {modoSelecao && (
-                    <td className="px-2 py-2">
+                    <td className="px-2 py-2.5">
                       <input
                         type="checkbox"
+                        className="rounded text-blue-600 focus:ring-blue-500"
                         checked={selecionados.includes(linha.id)}
                         onChange={() => handleSelect(linha.id)}
                       />
                     </td>
                   )}
-                  <td className="px-4 py-2">{linha.comodo}</td>
-                  <td className="px-4 py-2">{linha.sinal24} dBm</td>
-                  <td className="px-4 py-2">{linha.sinal5} dBm</td>
-                  <td className="px-4 py-2">{linha.velocidade24} Mbps</td>
-                  <td className="px-4 py-2">{linha.velocidade5} Mbps</td>
-                  <td className="px-4 py-2">{linha.interferencia} dBm</td>
-                  <td className="px-4 py-2">{linha.dataHora}</td>
-                  <td className="px-4 py-2 flex gap-2">
-                    <button
-                      onClick={() => handleEdit(index)}
-                      className="text-blue-600 hover:text-blue-800"
-                    >
-                      <PencilSquareIcon className="h-5 w-5" />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteSelecionados(index)}
-                      className="text-red-600 hover:text-red-800"
-                    >
-                      <TrashIcon className="h-5 w-5" />
-                    </button>
+                  <td className="px-4 py-2.5 whitespace-nowrap">{linha.comodo}</td>
+                  <td className="px-4 py-2.5 whitespace-nowrap">{linha.sinal24} dBm</td>
+                  <td className="px-4 py-2.5 whitespace-nowrap">{linha.sinal5} dBm</td>
+                  <td className="px-4 py-2.5 whitespace-nowrap">{linha.velocidade24} Mbps</td>
+                  <td className="px-4 py-2.5 whitespace-nowrap">{linha.velocidade5} Mbps</td>
+                  <td className="px-4 py-2.5 whitespace-nowrap">{linha.interferencia} dBm</td>
+                  <td className="px-4 py-2.5 whitespace-nowrap">{linha.dataHora}</td>
+                  <td className="px-4 py-2.5">
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => handleEdit(index)}
+                        className="text-blue-600 hover:text-blue-800 focus:outline-none"
+                        aria-label="Editar"
+                      >
+                        <PencilSquareIcon className="h-5 w-5" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteSelecionados(index)}
+                        className="text-red-600 hover:text-red-800 focus:outline-none"
+                        aria-label="Excluir"
+                      >
+                        <TrashIcon className="h-5 w-5" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -236,3 +319,6 @@ function Home() {
 }
 
 export default Home;
+
+// -> /medicoes/modelo?format=xlxs
+// -> /medicoes/import
