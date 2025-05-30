@@ -120,8 +120,8 @@ function Home() {
     if (confirm.isConfirmed) {
       try {
         const token = localStorage.getItem('token');
-        await axios.delete(`${process.env.REACT_APP_API_URL}/medicoes/multi-delete`, 
-          { 
+        await axios.delete(`${process.env.REACT_APP_API_URL}/medicoes/multi-delete`,
+          {
             headers: { Authorization: `Bearer ${token}` },
             data: { ids: selecionados }
           }
@@ -148,6 +148,13 @@ function Home() {
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold text-gray-800">Medições de Internet</h1>
         <div className="flex gap-2">
+          <button
+            onClick={gerarPdf}
+            className="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700"
+          >
+            Baixar PDF
+          </button>
+
           {!modoSelecao ? (
             <button
               onClick={() => setModoSelecao(true)}
@@ -184,9 +191,10 @@ function Home() {
         className="mb-4 p-2 border rounded w-full max-w-xs"
         value={filtro}
         onChange={(e) => setFiltro(e.target.value)}
+        data-html2canvas-ignore="true"
       />
 
-      <div className="overflow-auto rounded shadow bg-white">
+      <div ref={tabelaRef} className="overflow-auto rounded shadow bg-white">
         <table className="min-w-full divide-y divide-gray-200 text-sm text-gray-700">
           <thead className="bg-gray-200">
             <tr>
@@ -206,13 +214,13 @@ function Home() {
                 </th>
               )}
               <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("comodo")}>Cômodo {getSetaOrdenacao("comodo")}</th>
-              <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("sinal2_4ghz")}>Sinal 2.4 GHz {getSetaOrdenacao("sinal2_4ghz")}</th>
-              <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("sinal5ghz")}>Sinal 5 GHz {getSetaOrdenacao("sinal5ghz")}</th>
-              <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("velocidade2_4ghz")}>Velocidade 2.4 GHz {getSetaOrdenacao("velocidade2_4ghz")}</th>
-              <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("velocidade5ghz")}>Velocidade 5 GHz {getSetaOrdenacao("velocidade5ghz")}</th>
-              <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("interferencia")}>Interferência {getSetaOrdenacao("interferencia")}</th>
+              <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("sinal2_4ghz")}>Sinal 2.4 GHz (dBm) {getSetaOrdenacao("sinal2_4ghz")}</th>
+              <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("sinal5ghz")}>Sinal 5 GHz (dBm) {getSetaOrdenacao("sinal5ghz")}</th>
+              <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("velocidade2_4ghz")}>Velocidade 2.4 GHz (Mbps) {getSetaOrdenacao("velocidade2_4ghz")}</th>
+              <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("velocidade5ghz")}>Velocidade 5 GHz (Mbps) {getSetaOrdenacao("velocidade5ghz")}</th>
+              <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("interferencia")}>Interferência (dBm) {getSetaOrdenacao("interferencia")}</th>
               <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("dataHora")}>Data e Hora {getSetaOrdenacao("dataHora")}</th>
-              <th className="px-4 py-2 text-left">Ações</th>
+              <th className="px-4 py-2 text-left" data-html2canvas-ignore="true">Ações</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -239,7 +247,7 @@ function Home() {
                   <td className="px-4 py-2">{linha.velocidade5} Mbps</td>
                   <td className="px-4 py-2">{linha.interferencia} dBm</td>
                   <td className="px-4 py-2">{linha.dataHora}</td>
-                  <td className="px-4 py-2 flex gap-2">
+                  <td className="px-4 py-2 flex gap-2" data-html2canvas-ignore="true">
                     <button
                       onClick={() => handleEdit(index)}
                       className="text-blue-600 hover:text-blue-800"
