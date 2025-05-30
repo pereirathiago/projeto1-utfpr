@@ -104,8 +104,8 @@ function Home() {
     if (confirm.isConfirmed) {
       try {
         const token = localStorage.getItem('token');
-        await axios.delete(`${process.env.REACT_APP_API_URL}/medicoes/multi-delete`, 
-          { 
+        await axios.delete(`${process.env.REACT_APP_API_URL}/medicoes/multi-delete`,
+          {
             headers: { Authorization: `Bearer ${token}` },
             data: { ids: selecionados }
           }
