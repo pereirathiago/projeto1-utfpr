@@ -37,6 +37,8 @@ function NetworkHeatmap() {
     const heatmapInstanceRef = useRef(null);
     const imageRef = useRef(null); // Referência para o elemento <img>
 
+
+
     useEffect(() => {
         setNetworkData(exampleApiData.medias);
         if (exampleApiData.medias.length > 0) {
@@ -149,6 +151,23 @@ function NetworkHeatmap() {
     }, [heatmapDataPoints]);
 
 
+    // Função utilitária para obter valores da legenda, agora no escopo do componente
+    const getLegendValues = (type) => {
+        switch (type) {
+            case 'mediaSinal2_4ghz':
+            case 'mediaSinal5ghz':
+                return { min: '-100 dBm', max: '-30 dBm' };
+            case 'mediaInterferencia':
+                return { min: '-90 dBm', max: '-50 dBm' };
+            case 'mediaVelocidade2_4ghz':
+                return { min: '0 Mbps', max: '150 Mbps' };
+            case 'mediaVelocidade5ghz':
+                return { min: '0 Mbps', max: '300 Mbps' };
+            default:
+                return { min: '0', max: '100' };
+        }
+    };
+
     const handleGenerateHeatmap = () => {
         if (roomPositions.length === 0 || !selectedMetric || !networkData.length) {
             alert("Por favor, marque os cômodos na planta e selecione uma métrica.");
@@ -173,6 +192,9 @@ function NetworkHeatmap() {
                 if (value > currentMaxValue) currentMaxValue = value;
             }
         });
+
+        const legendValues = getLegendValues(selectedMetric);
+
 
         let heatmapMax = currentMaxValue;
         const metricConfig = metricOptions.find(m => m.value === selectedMetric);
@@ -215,11 +237,14 @@ function NetworkHeatmap() {
 
 
     return (
-        <div className="p-4 space-y-6">
-            <h1 className="text-2xl font-bold">Análise de Rede com Heatmap</h1>
+        <div className="max-w-screen-xl mx-auto p-6 space-y-6 font-sans">
+            <h1 className="text-3xl font-bold text-gray-800">Análise de Rede - Heatmap</h1>
 
-            <div>
-                <label htmlFor="floorPlanUpload" className="block text-sm font-medium text-gray-700">
+            <div className="mb-4">
+                <label
+                    htmlFor="floorPlanUpload"
+                    className="block text-sm font-medium text-gray-700"
+                >
                     1. Carregar Planta Baixa (.jpg, .png)
                 </label>
                 <input
@@ -227,139 +252,173 @@ function NetworkHeatmap() {
                     id="floorPlanUpload"
                     accept="image/png, image/jpeg"
                     onChange={handleImageUpload}
-                    className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                    className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                 />
             </div>
 
             {floorPlanImage && (
-                <>
-                    <div className="flex flex-wrap gap-4 items-center">
-                        <button
-                            onClick={() => setPlacementMode('router')}
-                            disabled={placementMode === 'router'}
-                            className={`px-4 py-2 rounded text-white ${placementMode === 'router' ? 'bg-orange-600' : 'bg-orange-400 hover:bg-orange-500'}`}
-                        >
-                            {routerPosition ? "Reposicionar" : "Marcar"} Roteador
-                        </button>
-
-                        <div className="flex items-center gap-2">
-                            <select
-                                value={selectedRoomName}
-                                onChange={(e) => {
-                                    setSelectedRoomName(e.target.value);
-                                    setPlacementMode('room');
-                                }}
-                                disabled={networkData.length === 0}
-                                className="p-2 border rounded"
-                            >
-                                {networkData.map(room => (
-                                    <option key={room.nomeComodo} value={room.nomeComodo}>
-                                        {room.nomeComodo}
-                                    </option>
-                                ))}
-                            </select>
-                            <button
-                                onClick={() => setPlacementMode('room')}
-                                disabled={!selectedRoomName || placementMode === 'room'}
-                                className={`px-4 py-2 rounded text-white ${placementMode === 'room' && selectedRoomName ? 'bg-indigo-600' : 'bg-indigo-400 hover:bg-indigo-500'}`}
-                            >
-                                Marcar {selectedRoomName || "Cômodo"}
-                            </button>
-                        </div>
-                        {placementMode && <p className="text-sm text-gray-600 italic">Clique na imagem para marcar: {placementMode === 'router' ? 'Roteador' : selectedRoomName}.</p>}
-                    </div>
-
-                    {networkData.length > 0 && (
-                        <div>
-                            <h3 className="text-md font-semibold mb-1">Cômodos Marcados:</h3>
-                            <div className="flex flex-wrap gap-2">
-                                {networkData.map(room => (
-                                    <span key={room.nomeComodo} className={`px-2 py-1 text-xs rounded-full text-white ${getRoomMarkerColor(room.nomeComodo)}`}>
-                                        {room.nomeComodo}
-                                    </span>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    <div>
-                        <label htmlFor="metricSelect" className="block text-sm font-medium text-gray-700">
-                            Selecione a Métrica:
-                        </label>
-                        <select
-                            id="metricSelect"
-                            value={selectedMetric}
-                            onChange={(e) => setSelectedMetric(e.target.value)}
-                            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-                        >
-                            {metricOptions.map(option => (
-                                <option key={option.value} value={option.value}>{option.label}</option>
-                            ))}
-                        </select>
-                    </div>
-
-                    <div className="flex space-x-4 my-4">
-                        <button
-                            onClick={handleGenerateHeatmap}
-                            disabled={roomPositions.length === 0}
-                            className="px-6 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-gray-300"
-                        >
-                            Gerar Heatmap
-                        </button>
-                        <button
-                            onClick={handleClearHeatmap}
-                            className="px-6 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-                        >
-                            Limpar Heatmap
-                        </button>
-                    </div>
-
-
+                <div className="flex flex-col lg:flex-row gap-6">
+                    {/* Imagem com marcadores */}
                     <div
                         ref={imageContainerRef}
                         onClick={handleImageClick}
-                        className="relative w-full max-w-3xl mx-auto border border-gray-300 cursor-crosshair"
-                        style={imageDimensions.width ? { aspectRatio: `${imageDimensions.width}/${imageDimensions.height}` } : {}}
+                        className="relative w-full lg:w-2/3 border border-gray-300 rounded-lg overflow-hidden aspect-[4/3] cursor-crosshair"
                     >
                         <img
                             ref={imageRef}
                             src={floorPlanImage}
                             alt="Planta Baixa"
-                            className="block w-full h-auto z-0"
+                            className="w-full h-full object-contain"
                             onLoad={handleImageLoad}
                         />
 
                         <div
                             ref={heatmapContainerRef}
-                            className="absolute top-0 left-0 z-10 pointer-events-none"
-                            style={{
-                                width: `${imageDimensions.displayWidth}px`,
-                                height: `${imageDimensions.displayHeight}px`,
-                            }}
+                            className="absolute top-0 left-0 w-full h-full z-10 pointer-events-none"
                         />
 
-                        {/* Camada dos Marcadores Visuais (sobre o heatmap e a imagem) */}
+                        {/* Roteador */}
                         {routerPosition && (
                             <div
-                                className="absolute w-4 h-4 bg-red-500 rounded-full border-2 border-white transform -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20"
+                                className="absolute w-5 h-5 bg-red-600 border-2 border-white rounded-full z-20 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none"
                                 style={{ left: `${routerPosition.x}px`, top: `${routerPosition.y}px` }}
                                 title="Roteador"
-                            ></div>
+                            />
                         )}
 
-                        {roomPositions.map(room => (
+                        {/* Cômodos */}
+                        {roomPositions.map((room) => (
                             <div
                                 key={room.name}
-                                // Se você quiser que os marcadores de cômodo (os pontos azuis) também fiquem sobre o heatmap:
-                                className="absolute transform -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20"
+                                className="absolute z-20 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none"
                                 style={{ left: `${room.x}px`, top: `${room.y}px` }}
                             >
-                                <div className="w-3 h-3 bg-blue-500 rounded-full border-2 border-white"></div>
-                                <span className="text-xs bg-black bg-opacity-50 text-white p-0.5 rounded whitespace-nowrap">{room.name}</span>
+                                <div className="w-4 h-4 bg-indigo-600 border-2 border-white rounded-full" />
+                                <span className="absolute top-full mt-1 text-xs text-white bg-black bg-opacity-60 px-1 rounded">
+                                    {room.name}
+                                </span>
                             </div>
                         ))}
+
+                        {placementMode && (
+                            <div className="absolute bottom-2 left-2 text-sm text-white bg-black bg-opacity-60 px-3 py-1 rounded z-30">
+                                Clique na imagem para marcar:{" "}
+                                {placementMode === "router" ? "Roteador" : selectedRoomName}.
+                            </div>
+                        )}
                     </div>
-                </>
+
+                    {/* Painel de Controle */}
+                    <div className="w-full lg:w-1/3 space-y-4">
+                        <div className="space-y-2">
+                            <button
+                                onClick={() => setPlacementMode("router")}
+                                disabled={placementMode === "router"}
+                                className={`w-full px-4 py-2 rounded-lg text-white ${placementMode === "router"
+                                    ? "bg-orange-600"
+                                    : "bg-orange-400 hover:bg-orange-500"
+                                    }`}
+                            >
+                                {routerPosition ? "Reposicionar" : "Marcar"} Roteador
+                            </button>
+
+                            <div className="flex items-center gap-2">
+                                <select
+                                    value={selectedRoomName}
+                                    onChange={(e) => {
+                                        setSelectedRoomName(e.target.value);
+                                        setPlacementMode("room");
+                                    }}
+                                    disabled={networkData.length === 0}
+                                    className="flex-1 p-2 border rounded"
+                                >
+                                    {networkData.map((room) => (
+                                        <option key={room.nomeComodo} value={room.nomeComodo}>
+                                            {room.nomeComodo}
+                                        </option>
+                                    ))}
+                                </select>
+                                <button
+                                    onClick={() => setPlacementMode("room")}
+                                    disabled={!selectedRoomName || placementMode === "room"}
+                                    className={`px-4 py-2 rounded-lg text-white ${placementMode === "room" && selectedRoomName
+                                        ? "bg-indigo-600"
+                                        : "bg-indigo-400 hover:bg-indigo-500"
+                                        }`}
+                                >
+                                    Marcar
+                                </button>
+                            </div>
+                        </div>
+
+                        {networkData.length > 0 && (
+                            <div>
+                                <h3 className="text-sm font-semibold">Cômodos Marcados:</h3>
+                                <div className="flex flex-wrap gap-2 mt-1">
+                                    {networkData.map((room) => (
+                                        <span
+                                            key={room.nomeComodo}
+                                            className={`px-2 py-1 text-xs rounded-full text-white ${getRoomMarkerColor(
+                                                room.nomeComodo
+                                            )}`}
+                                        >
+                                            {room.nomeComodo}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        <div>
+                            <label
+                                htmlFor="metricSelect"
+                                className="block text-sm font-medium text-gray-700"
+                            >
+                                Tipo de Heatmap:
+                            </label>
+                            <select
+                                id="metricSelect"
+                                value={selectedMetric}
+                                onChange={(e) => setSelectedMetric(e.target.value)}
+                                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                            >
+                                {metricOptions.map((option) => (
+                                    <option key={option.value} value={option.value}>
+                                        {option.label}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="flex space-x-4">
+                            <button
+                                onClick={handleGenerateHeatmap}
+                                disabled={roomPositions.length === 0}
+                                className="flex-1 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:bg-gray-300"
+                            >
+                                Gerar Heatmap
+                            </button>
+
+                            <button
+                                onClick={handleClearHeatmap}
+                                className="flex-1 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                            >
+                                Limpar
+                            </button>
+                        </div>
+                        {/* Legenda dinâmica do heatmap */}
+                        <div className="mt-6">
+                            <h3 className="text-lg font-semibold mb-2">Legenda</h3>
+                            <div className="w-full max-w-md">
+                                <div className="h-4 w-full bg-gradient-to-r from-blue-500 via-green-300 to-red-500 rounded" />
+                                <div className="flex justify-between text-sm text-gray-600 mt-1">
+                                    <span>{getLegendValues(selectedMetric).min}</span>
+                                    <span>{getLegendValues(selectedMetric).max}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );
