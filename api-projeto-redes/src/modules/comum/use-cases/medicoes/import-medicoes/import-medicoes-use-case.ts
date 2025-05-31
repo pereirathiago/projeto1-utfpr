@@ -39,10 +39,15 @@ class ImportMedicoesUseCase {
         const comodoNome = row.getCell(1).value?.toString().trim().toUpperCase()
 
         if (!comodoNome) continue
-        const comodo = await this.comodosRepository.findByName(comodoNome, userId)
-        console.log(comodo)
-        if (comodo.statusCode != 200) {
-          return notFound()
+        let comodo = await this.comodosRepository.findByName(comodoNome, userId)
+
+        if (comodo.statusCode !== 200) {
+          const criado = await this.comodosRepository.create({
+            nome: comodoNome.charAt(0).toUpperCase() + comodoNome.slice(1).toLowerCase(),
+            userId
+          })
+
+          comodo = criado
         }
 
         medicoes.push({

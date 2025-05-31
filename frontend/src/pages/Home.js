@@ -59,12 +59,13 @@ function Home() {
         const [year, month, day] = date.split('-');
         const [hours, minutes] = time.split(':');
         const formattedDateTime = `${day}/${month}/${year}, ${hours}:${minutes}`;
+
         return {
           id: item.id,
           comodo: item.nomeComodo,
-          sinal24: item.nivelSinal2_4ghz,
+          sinal2_4: item.nivelSinal2_4ghz,
           sinal5: item.nivelSinal5ghz,
-          velocidade24: item.velocidade2_4ghz,
+          velocidade2_4: item.velocidade2_4ghz,
           velocidade5: item.velocidade5ghz,
           interferencia: item.interferencia,
           dataHora: formattedDateTime,
@@ -214,11 +215,11 @@ function Home() {
                 </th>
               )}
               <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("comodo")}>Cômodo {getSetaOrdenacao("comodo")}</th>
-              <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("sinal2_4ghz")}>Sinal 2.4 GHz (dBm) {getSetaOrdenacao("sinal2_4ghz")}</th>
-              <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("sinal5ghz")}>Sinal 5 GHz (dBm) {getSetaOrdenacao("sinal5ghz")}</th>
-              <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("velocidade2_4ghz")}>Velocidade 2.4 GHz (Mbps) {getSetaOrdenacao("velocidade2_4ghz")}</th>
-              <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("velocidade5ghz")}>Velocidade 5 GHz (Mbps) {getSetaOrdenacao("velocidade5ghz")}</th>
-              <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("interferencia")}>Interferência (dBm) {getSetaOrdenacao("interferencia")}</th>
+              <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("sinal2_4")}>Sinal 2.4 GHz {getSetaOrdenacao("sinal2_4")}</th>
+              <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("sinal5")}>Sinal 5 GHz {getSetaOrdenacao("sinal5")}</th>
+              <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("velocidade2_4")}>Velocidade 2.4 GHz {getSetaOrdenacao("velocidade2_4")}</th>
+              <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("velocidade5")}>Velocidade 5 GHz {getSetaOrdenacao("velocidade5")}</th>
+              <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("interferencia")}>Interferência {getSetaOrdenacao("interferencia")}</th>
               <th className="px-4 py-2 text-left cursor-pointer" onClick={() => handleSort("dataHora")}>Data e Hora {getSetaOrdenacao("dataHora")}</th>
               <th className="px-4 py-2 text-left" data-html2canvas-ignore="true">Ações</th>
             </tr>
@@ -241,9 +242,9 @@ function Home() {
                     </td>
                   )}
                   <td className="px-4 py-2">{linha.comodo}</td>
-                  <td className="px-4 py-2">{linha.sinal24} dBm</td>
+                  <td className="px-4 py-2">{linha.sinal2_4} dBm</td>
                   <td className="px-4 py-2">{linha.sinal5} dBm</td>
-                  <td className="px-4 py-2">{linha.velocidade24} Mbps</td>
+                  <td className="px-4 py-2">{linha.velocidade2_4} Mbps</td>
                   <td className="px-4 py-2">{linha.velocidade5} Mbps</td>
                   <td className="px-4 py-2">{linha.interferencia} dBm</td>
                   <td className="px-4 py-2">{linha.dataHora}</td>
