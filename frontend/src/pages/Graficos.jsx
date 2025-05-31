@@ -4,6 +4,8 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid,
   ResponsiveContainer
 } from 'recharts';
+import NetworkHeatmap from '../components/NetworkHeatmap';
+import Heatmpa from '../components/Heatmpa';
 
 export default function Graficos() {
   const [dados, setDados] = useState([])
@@ -70,6 +72,9 @@ export default function Graficos() {
           </ResponsiveContainer>
         </div>
       </div>
+
+      <Heatmpa />
+      {/* < NetworkHeatmap /> */}
     </div>
   )
 }
