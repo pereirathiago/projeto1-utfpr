@@ -1,18 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import h337 from 'heatmap.js';
 
-// Seus dados de exemplo (viriam de uma API)
-const exampleApiData = {
-    "statusCode": 200,
-    "medias": [
-        { "nomeComodo": "Quarto 2", "mediaSinal2_4ghz": "-40.0", "mediaSinal5ghz": "-72.0", "mediaVelocidade2_4ghz": "102.0", "mediaVelocidade5ghz": "130.0", "mediaInterferencia": "-33.0" },
-        { "nomeComodo": "Garagem", "mediaSinal2_4ghz": "-50.0", "mediaSinal5ghz": "-35.0", "mediaVelocidade2_4ghz": "100.0", "mediaVelocidade5ghz": "150.0", "mediaInterferencia": "-40.0" },
-        { "nomeComodo": "Sala", "mediaSinal2_4ghz": "-51.5", "mediaSinal5ghz": "-41.3", "mediaVelocidade2_4ghz": "79.1", "mediaVelocidade5ghz": "150.2", "mediaInterferencia": "-28.0" },
-        { "nomeComodo": "Quarto", "mediaSinal2_4ghz": "-30.0", "mediaSinal5ghz": "-15.0", "mediaVelocidade2_4ghz": "150.0", "mediaVelocidade5ghz": "300.0", "mediaInterferencia": "-10.0" },
-        { "nomeComodo": "Banheiro", "mediaSinal2_4ghz": "-30.0", "mediaSinal5ghz": "-56.0", "mediaVelocidade2_4ghz": "75.0", "mediaVelocidade5ghz": "140.0", "mediaInterferencia": "-37.0" }
-    ]
-};
-
 const metricOptions = [
     { value: 'mediaSinal2_4ghz', label: 'Sinal 2.4 GHz (dBm)', type: 'signal' },
     { value: 'mediaSinal5ghz', label: 'Sinal 5 GHz (dBm)', type: 'signal' },
@@ -21,7 +9,7 @@ const metricOptions = [
     { value: 'mediaInterferencia', label: 'Interferência (dBm)', type: 'interference' },
 ];
 
-function NetworkHeatmap() {
+function NetworkHeatmap({mediasApiData}) {
     const [floorPlanImage, setFloorPlanImage] = useState(null);
     const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0, displayWidth: 0, displayHeight: 0 });
     const [routerPosition, setRouterPosition] = useState(null);
@@ -30,19 +18,19 @@ function NetworkHeatmap() {
     const [networkData, setNetworkData] = useState([]);
     const [selectedMetric, setSelectedMetric] = useState(metricOptions[0].value);
     const [placementMode, setPlacementMode] = useState(null);
-    const [heatmapDataPoints, setHeatmapDataPoints] = useState({ max: 1, data: [] }); // Estado para os dados do heatmap
+    const [heatmapDataPoints, setHeatmapDataPoints] = useState({ max: 1, data: [] });
 
     const imageContainerRef = useRef(null);
     const heatmapContainerRef = useRef(null);
     const heatmapInstanceRef = useRef(null);
-    const imageRef = useRef(null); // Referência para o elemento <img>
+    const imageRef = useRef(null);
 
 
 
     useEffect(() => {
-        setNetworkData(exampleApiData.medias);
-        if (exampleApiData.medias.length > 0) {
-            setSelectedRoomName(exampleApiData.medias[0].nomeComodo);
+        setNetworkData(mediasApiData);
+        if (mediasApiData.length > 0) {
+            setSelectedRoomName(mediasApiData[0].nomeComodo);
         }
     }, []);
 
@@ -52,12 +40,11 @@ function NetworkHeatmap() {
             const reader = new FileReader();
             reader.onload = (e) => {
                 setFloorPlanImage(e.target.result);
-                // As dimensões serão definidas no onLoad da tag <img>
             };
             reader.readAsDataURL(file);
             setRouterPosition(null);
             setRoomPositions([]);
-            setHeatmapDataPoints({ max: 1, data: [] }); // Limpa dados do heatmap
+            setHeatmapDataPoints({ max: 1, data: [] });
         }
     };
 
@@ -95,7 +82,6 @@ function NetworkHeatmap() {
         }
     };
 
-    // Efeito para gerenciar a instância do heatmap e o tamanho do container
     useEffect(() => {
         if (!heatmapContainerRef.current) return;
 
@@ -129,7 +115,6 @@ function NetworkHeatmap() {
                 container: heatmapContainerRef.current,
                 radius: 150, maxOpacity: 0.7, minOpacity: 0.1, blur: 0.85,
             });
-            // Reaplicar dados após recriação, pois o canvas é novo
             heatmapInstanceRef.current.setData(heatmapDataPoints);
         }
 
@@ -141,17 +126,14 @@ function NetworkHeatmap() {
             pointerEvents: 'none'
         });
 
-    }, [imageDimensions, heatmapDataPoints]); // Adicionar heatmapDataPoints garante que dados sejam redesenhados em canvas recriado
+    }, [imageDimensions, heatmapDataPoints]);
 
-    // Efeito para atualizar os dados no heatmap quando heatmapDataPoints muda
     useEffect(() => {
         if (heatmapInstanceRef.current) {
             heatmapInstanceRef.current.setData(heatmapDataPoints);
         }
     }, [heatmapDataPoints]);
 
-
-    // Função utilitária para obter valores da legenda, agora no escopo do componente
     const getLegendValues = (type) => {
         switch (type) {
             case 'mediaSinal2_4ghz':
@@ -171,7 +153,7 @@ function NetworkHeatmap() {
     const handleGenerateHeatmap = () => {
         if (roomPositions.length === 0 || !selectedMetric || !networkData.length) {
             alert("Por favor, marque os cômodos na planta e selecione uma métrica.");
-            setHeatmapDataPoints({ max: 1, data: [] }); // Limpa o heatmap se não houver dados
+            setHeatmapDataPoints({ max: 1, data: [] });
             return;
         }
 
@@ -203,7 +185,7 @@ function NetworkHeatmap() {
             else if (metricConfig.type === 'interference') heatmapMax = 90;
             else if (metricConfig.type === 'speed') heatmapMax = Math.max(200, currentMaxValue) || 200;
         }
-        heatmapMax = heatmapMax === 0 ? (metricConfig?.type === 'speed' ? 100 : 50) : heatmapMax; // Evitar max 0
+        heatmapMax = heatmapMax === 0 ? (metricConfig?.type === 'speed' ? 100 : 50) : heatmapMax;
 
         if (points.length > 0) {
             setHeatmapDataPoints({ max: heatmapMax, min: 0, data: points });
@@ -220,7 +202,6 @@ function NetworkHeatmap() {
         return roomPositions.find(r => r.name === roomName) ? 'bg-green-500' : 'bg-gray-300';
     };
 
-    // Recalcular dimensões da imagem em caso de redimensionamento da janela
     useEffect(() => {
         const updateImageDisplayDimensions = () => {
             if (imageRef.current) {
@@ -277,7 +258,6 @@ function NetworkHeatmap() {
                             className="absolute top-0 left-0 w-full h-full z-10 pointer-events-none"
                         />
 
-                        {/* Roteador */}
                         {routerPosition && (
                             <div
                                 className="absolute w-5 h-5 bg-red-600 border-2 border-white rounded-full z-20 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none"
@@ -308,7 +288,6 @@ function NetworkHeatmap() {
                         )}
                     </div>
 
-                    {/* Painel de Controle */}
                     <div className="w-full lg:w-1/3 space-y-4">
                         <div className="space-y-2">
                             <button
@@ -406,7 +385,6 @@ function NetworkHeatmap() {
                                 Limpar
                             </button>
                         </div>
-                        {/* Legenda dinâmica do heatmap */}
                         <div className="mt-6">
                             <h3 className="text-lg font-semibold mb-2">Legenda</h3>
                             <div className="w-full max-w-md">
