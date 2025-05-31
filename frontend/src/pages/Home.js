@@ -144,11 +144,11 @@ function Home() {
   };
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
+    <div className="p-6 bg-gray-100 min-h-screen"  ref={tabelaRef}>
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold text-gray-800">Medições de Internet</h1>
         <div className="flex gap-2">
-          <button
+          <button data-html2canvas-ignore="true"
             onClick={gerarPdf}
             className="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700"
           >
@@ -156,7 +156,7 @@ function Home() {
           </button>
 
           {!modoSelecao ? (
-            <button
+            <button data-html2canvas-ignore="true"
               onClick={() => setModoSelecao(true)}
               className="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700"
             >
@@ -194,7 +194,7 @@ function Home() {
         data-html2canvas-ignore="true"
       />
 
-      <div ref={tabelaRef} className="overflow-auto rounded shadow bg-white">
+      <div className="overflow-auto rounded shadow bg-white">
         <table className="min-w-full divide-y divide-gray-200 text-sm text-gray-700">
           <thead className="bg-gray-200">
             <tr>
