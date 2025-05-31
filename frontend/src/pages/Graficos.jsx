@@ -4,7 +4,6 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid,
   ResponsiveContainer
 } from 'recharts';
-import NetworkHeatmap from '../components/NetworkHeatmap';
 import Heatmpa from '../components/Heatmpa';
 
 export default function Graficos() {
@@ -74,7 +73,6 @@ export default function Graficos() {
       </div>
 
       <Heatmpa />
-      {/* < NetworkHeatmap /> */}
     </div>
   )
 }
