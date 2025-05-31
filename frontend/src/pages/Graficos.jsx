@@ -72,7 +72,7 @@ export default function Graficos() {
         </div>
       </div>
 
-      <Heatmpa />
+      <Heatmpa mediasApiData={dados} />
     </div>
   )
 }
