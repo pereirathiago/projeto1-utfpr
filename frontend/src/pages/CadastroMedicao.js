@@ -197,91 +197,132 @@ export default function Cadastro() {
                 </div>
             </div>
             <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {comodos.length > 0 ? (
-                    <select
-                        name="comodo"
-                        value={formData.comodo}
+                <div>
+                    <label htmlFor="comodo" className="block text-sm font-medium text-gray-700 mb-1">
+                        Cômodo
+                    </label>
+                    {comodos.length > 0 ? (
+                        <select
+                            id="comodo"
+                            name="comodo"
+                            value={formData.comodo}
+                            onChange={handleChange}
+                            required
+                            className="border p-2 rounded w-full focus:ring-indigo-500 focus:border-indigo-500"
+                        >
+                            <option value="">Selecione um cômodo</option>
+                            {comodos.map((comodo) => (
+                                <option key={comodo.id} value={comodo.id}>
+                                    {comodo.nome}
+                                </option>
+                            ))}
+                        </select>
+                    ) : (
+                        <input
+                            id="comodo_disabled" // ID diferente se 'comodo' for usado no select
+                            type="text"
+                            disabled
+                            value="Nenhum cômodo cadastrado"
+                            className="border p-2 rounded bg-gray-100 text-gray-500 w-full"
+                        />
+                    )}
+                </div>
+                <div>
+                    <label htmlFor="sinal24" className="block text-sm font-medium text-gray-700 mb-1">
+                        Sinal 2.4 GHz (dBm)
+                    </label>
+                    <input
+                        id="sinal24"
+                        name="sinal24"
+                        placeholder="-50"
+                        value={formData.sinal24}
                         onChange={handleChange}
                         required
-                        className="border p-2 rounded"
-                    >
-                        <option value="">Selecione um cômodo</option>
-                        {comodos.map((comodo) => (
-                            <option key={comodo.id} value={comodo.id}>
-                                {comodo.nome}
-                            </option>
-                        ))}
-                    </select>
-                ) : (
-                    <input
-                        type="text"
-                        disabled
-                        value="Nenhum cômodo cadastrado"
-                        className="border p-2 rounded bg-gray-100 text-gray-500"
+                        className="border p-2 rounded w-full focus:ring-indigo-500 focus:border-indigo-500"
+                        type="number"
+                        max="0"
                     />
-                )}
-
-                <input
-                    name="sinal24"
-                    placeholder="Sinal 2.4 GHz (dBm)"
-                    value={formData.sinal24}
-                    onChange={handleChange}
-                    required
-                    className="border p-2 rounded"
-                    type="number"
-                    max="0"
-                />
-                <input
-                    name="sinal5"
-                    placeholder="Sinal 5 GHz (dBm)"
-                    value={formData.sinal5}
-                    onChange={handleChange}
-                    required
-                    className="border p-2 rounded"
-                    type="number"
-                    max="0"
-                />
-                <input
-                    name="velocidade24"
-                    placeholder="Velocidade 2.4 GHz (Mbps)"
-                    value={formData.velocidade24}
-                    onChange={handleChange}
-                    required
-                    className="border p-2 rounded"
-                    type="number"
-                    step="1"
-                    min="0"
-                />
-                <input
-                    label="Velocidade 5 GHz (Mbps)"
-                    name="velocidade5"
-                    placeholder="Velocidade 5 GHz (Mbps)"
-                    value={formData.velocidade5}
-                    onChange={handleChange}
-                    required
-                    className="border p-2 rounded"
-                    type="number"
-                    step="1"
-                    min="0"
-                />
-                <input
-                    name="interferencia"
-                    placeholder="Interferência (dBm)"
-                    value={formData.interferencia}
-                    onChange={handleChange}
-                    required
-                    className="border p-2 rounded"
-                    type="number"
-                    max="0"
-                />
-                <input
-                    type="datetime-local"
-                    name="dataHora"
-                    value={formData.dataHora}
-                    onChange={handleChange}
-                    required
-                    className="border p-2 rounded col-span-full"
-                />
+                </div>
+                <div>
+                    <label htmlFor="sinal5" className="block text-sm font-medium text-gray-700 mb-1">
+                        Sinal 5 GHz (dBm)
+                    </label>
+                    <input
+                        id="sinal5"
+                        name="sinal5"
+                        placeholder="-55"
+                        value={formData.sinal5}
+                        onChange={handleChange}
+                        required
+                        className="border p-2 rounded w-full focus:ring-indigo-500 focus:border-indigo-500"
+                        type="number"
+                        max="0"
+                    />
+                </div>
+                <div>
+                    <label htmlFor="velocidade24" className="block text-sm font-medium text-gray-700 mb-1">
+                        Velocidade 2.4 GHz (Mbps)
+                    </label>
+                    <input
+                        id="velocidade24"
+                        name="velocidade24"
+                        placeholder="70"
+                        value={formData.velocidade24}
+                        onChange={handleChange}
+                        required
+                        className="border p-2 rounded w-full focus:ring-indigo-500 focus:border-indigo-500"
+                        type="number"
+                        step="0.1"
+                        min="0"
+                    />
+                </div>
+                <div>
+                    <label htmlFor="velocidade5" className="block text-sm font-medium text-gray-700 mb-1">
+                        Velocidade 5 GHz (Mbps)
+                    </label>
+                    <input
+                        id="velocidade5"
+                        name="velocidade5"
+                        placeholder="350"
+                        value={formData.velocidade5}
+                        onChange={handleChange}
+                        required
+                        className="border p-2 rounded w-full focus:ring-indigo-500 focus:border-indigo-500"
+                        type="number"
+                        step="0.1"
+                        min="0"
+                    />
+                </div>
+                <div>
+                    <label htmlFor="interferencia" className="block text-sm font-medium text-gray-700 mb-1">
+                        Interferência (dBm)
+                    </label>
+                    <input
+                        id="interferencia"
+                        name="interferencia"
+                        placeholder="-90"
+                        value={formData.interferencia}
+                        onChange={handleChange}
+                        required
+                        className="border p-2 rounded w-full focus:ring-indigo-500 focus:border-indigo-500"
+                        type="number"
+                        max="0"
+                    />
+                </div>
+                <div className="md:col-span-2"> 
+                    <label htmlFor="dataHora" className="block text-sm font-medium text-gray-700 mb-1">
+                        Data e Hora
+                    </label>
+                    <input
+                        type="datetime-local"
+                        id="dataHora"
+                        name="dataHora"
+                        value={formData.dataHora}
+                        onChange={handleChange}
+                        required
+                        className="border p-2 rounded w-full focus:ring-indigo-500 focus:border-indigo-500"
+                    />
+                </div>
                 <button
                     type="submit"
                     className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 justify-self-end col-span-full"
