@@ -4,6 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/solid';
 import html2pdf from "html2pdf.js";
+import {
+  BarChart, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid,
+  ResponsiveContainer
+} from 'recharts';
+import Heatmpa from '../components/Heatmpa';
 
 
 function Home() {
@@ -13,24 +18,72 @@ function Home() {
   const [modoSelecao, setModoSelecao] = useState(false);
   const [selecionados, setSelecionados] = useState([]);
   const tabelaRef = useRef(null);
+  const [loading, setLoading] = useState(true)
+  const token = localStorage.getItem('token')
+  const [medicoes, setMedicoes] = useState([]);
+  const [medias, setMedias] = useState([]);
+  const [mostrarGraficos, setMostrarGraficos] = useState(false);
+  const [gerandoPdf, setGerandoPdf] = useState(false);
+
+
+
 
   const navigate = useNavigate();
+  const fetchMedias = async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/medicoes/medias`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
 
+      if (response.data && response.data.medias) {
+        setMedias(response.data.medias)
+      }
+    } catch (error) {
+      console.error('Erro ao buscar dados:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
   useEffect(() => {
     buscarMedicoes();
+    fetchMedias()
   }, [ordenacao]);
 
-  const gerarPdf = () => {
-    const opt = {
-      margin: 0.5,
-      filename: 'relatorio_medicoes.pdf',
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' }
-    };
+  const gerarPdf = async () => {
+    setGerandoPdf(true); // começa o loading
+    setMostrarGraficos(true);
 
-    html2pdf().set(opt).from(tabelaRef.current).save();
+    try {
+      await fetchMedias();
+
+      document.body.style.overflow = 'hidden';
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      window.dispatchEvent(new Event('resize'));
+
+      const elemento = tabelaRef.current;
+      const opt = {
+        margin: 0.5,
+        filename: 'relatorio_medicoes.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' }
+      };
+
+      await html2pdf().set(opt).from(elemento).save();
+    } catch (err) {
+      console.error("Erro ao gerar PDF:", err);
+    } finally {
+      setMostrarGraficos(false);
+      document.body.style.overflow = 'auto';
+      setGerandoPdf(false); // termina o loading
+    }
   };
+
+
+
 
 
   const buscarMedicoes = async () => {
@@ -73,7 +126,7 @@ function Home() {
         };
       });
 
-      setDados(formatados);
+      setMedicoes(formatados);
     } catch (error) {
       console.error("Erro ao buscar medições:", error);
       Swal.fire({ icon: 'error', title: 'Erro', text: 'Erro ao carregar medições.' });
@@ -145,7 +198,7 @@ function Home() {
   };
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen"  ref={tabelaRef}>
+    <div className="p-6 bg-gray-100 min-h-screen" ref={tabelaRef}>
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold text-gray-800">Medições de Internet</h1>
         <div className="flex gap-2">
@@ -225,7 +278,7 @@ function Home() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {dados
+            {medicoes
               .filter(item => item.comodo.toLowerCase().includes(filtro.toLowerCase()))
               .map((linha, index) => (
                 <tr
@@ -292,7 +345,50 @@ function Home() {
           </tbody>
         </table>
       </div>
+      <div style={{ display: mostrarGraficos ? "block" : "none" }} ref={tabelaRef}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h2 className="text-xl font-semibold text-center mb-2">Resultado do nível de sinal (dbm)</h2>
+            <ResponsiveContainer width="100%" height={400}>
+              <BarChart data={medias}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="nomeComodo" />
+                <YAxis domain={[-100, 0]} />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="mediaSinal2_4ghz" name="2,4GHz" fill="#1e40af" />
+                <Bar dataKey="mediaSinal5ghz" name="5GHz" fill="#dc2626" />
+                <Bar dataKey="mediaInterferencia" name="Interferência" fill="#f59e0b" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          <div>
+            <h2 className="text-xl font-semibold text-center mb-2">Velocidade da rede WiFi</h2>
+            <ResponsiveContainer width="100%" height={400}>
+              <BarChart width={600} height={400} data={medias}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="nomeComodo" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="mediaVelocidade2_4ghz" name="2,4GHz" fill="#1e40af" />
+                <Bar dataKey="mediaVelocidade5ghz" name="5GHz" fill="#dc2626" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+      {gerandoPdf && (
+        <div data-html2canvas-ignore="true" className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="flex flex-col items-center">
+            <div className="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-20 w-20 mb-4 animate-spin border-t-blue-600"></div>
+            <p className="text-white text-lg">Gerando PDF...</p>
+          </div>
+        </div>
+      )}
     </div>
+
   );
 }
 
