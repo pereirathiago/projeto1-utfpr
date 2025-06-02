@@ -146,7 +146,9 @@ function Home() {
   };
 
   const handleEdit = async (index) => {
-    const item = dados[index];
+    console.log("Editando medição no índice:", index);
+    console.log("medicoes:", medicoes);
+    const item = medicoes[index];
     try {
       const token = localStorage.getItem('token');
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/medicoes/${item.id}`, {
@@ -180,7 +182,7 @@ function Home() {
             data: { ids: selecionados }
           }
         );
-        setDados(prev => prev.filter(item => !selecionados.includes(item.id)));
+        setMedicoes(prev => prev.filter(item => !selecionados.includes(item.id)));
         setSelecionados([]);
         setModoSelecao(false);
         Swal.fire('Excluído!', 'As medições foram removidas com sucesso.', 'success');
@@ -256,10 +258,10 @@ function Home() {
                 <th className="px-2 py-2">
                   <input
                     type="checkbox"
-                    checked={selecionados.length === dados.length}
+                    checked={selecionados.length === medicoes.length}
                     onChange={(e) => {
                       if (e.target.checked) {
-                        setSelecionados(dados.map(d => d.id));
+                        setSelecionados(medicoes.map(d => d.id));
                       } else {
                         setSelecionados([]);
                       }
@@ -327,7 +329,7 @@ function Home() {
                             await axios.delete(`${process.env.REACT_APP_API_URL}/medicoes/${linha.id}`, {
                               headers: { Authorization: `Bearer ${token}` },
                             });
-                            setDados(prev => prev.filter(item => item.id !== linha.id));
+                            setMedicoes(prev => prev.filter(item => item.id !== linha.id));
                             Swal.fire('Excluído!', 'A medição foi removida com sucesso.', 'success');
                           } catch (error) {
                             console.error('Erro ao excluir:', error);
