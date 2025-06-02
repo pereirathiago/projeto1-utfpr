@@ -2,10 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import h337 from 'heatmap.js';
 
 const metricOptions = [
-    { value: 'mediaSinal2_4ghz', label: 'Sinal 2.4 GHz (dBm)', type: 'signal' },
-    { value: 'mediaSinal5ghz', label: 'Sinal 5 GHz (dBm)', type: 'signal' },
-    { value: 'mediaVelocidade2_4ghz', label: 'Velocidade 2.4 GHz (Mbps)', type: 'speed' },
-    { value: 'mediaVelocidade5ghz', label: 'Velocidade 5 GHz (Mbps)', type: 'speed' },
+    { value: 'mediaSinal2_4ghz', label: 'Sinal 2.4 GHz (dBm)', type: 'signal24' },
+    { value: 'mediaSinal5ghz', label: 'Sinal 5 GHz (dBm)', type: 'signal5' },
+    { value: 'mediaVelocidade2_4ghz', label: 'Velocidade 2.4 GHz (Mbps)', type: 'speed24' },
+    { value: 'mediaVelocidade5ghz', label: 'Velocidade 5 GHz (Mbps)', type: 'speed5' },
     { value: 'mediaInterferencia', label: 'Interferência (dBm)', type: 'interference' },
 ];
 
@@ -142,9 +142,9 @@ function NetworkHeatmap({mediasApiData}) {
             case 'mediaInterferencia':
                 return { min: '-90 dBm', max: '-50 dBm' };
             case 'mediaVelocidade2_4ghz':
-                return { min: '0 Mbps', max: '150 Mbps' };
+                return { min: '0 Mbps', max: '100 Mbps' };
             case 'mediaVelocidade5ghz':
-                return { min: '0 Mbps', max: '300 Mbps' };
+                return { min: '0 Mbps', max: '150 Mbps' };
             default:
                 return { min: '0', max: '100' };
         }
@@ -162,12 +162,13 @@ function NetworkHeatmap({mediasApiData}) {
 
         roomPositions.forEach(room => {
             const metricData = room.data?.[selectedMetric];
-            if (metricData !== undefined && metricData !== null) {
+            // Ignora valores nulos, undefined ou zero
+            if (metricData !== undefined && metricData !== null && Number(metricData) !== 0) {
                 let value = parseFloat(metricData);
                 const metricConfig = metricOptions.find(m => m.value === selectedMetric);
 
                 if (metricConfig) {
-                    if (metricConfig.type === 'signal') value = value + 100;
+                    if (metricConfig.type === 'signal24' || metricConfig.type === 'signal5') value = value + 100;
                     else if (metricConfig.type === 'interference') value = -value;
                 }
                 points.push({ x: room.x, y: room.y, value: value });
@@ -175,18 +176,19 @@ function NetworkHeatmap({mediasApiData}) {
             }
         });
 
-        const legendValues = getLegendValues(selectedMetric);
-
+        const metricConfig = metricOptions.find(m => m.value === selectedMetric);
 
         let heatmapMax = currentMaxValue;
-        const metricConfig = metricOptions.find(m => m.value === selectedMetric);
         if (metricConfig) {
-            if (metricConfig.type === 'signal') heatmapMax = 75;
+            if (metricConfig.type === 'signal24') heatmapMax = 75;
+            else if (metricConfig.type === 'signal5') heatmapMax = 50;
+            else if (metricConfig.type === 'speed24') heatmapMax = Math.max(100, currentMaxValue) || 100;
+            else if (metricConfig.type === 'speed5') heatmapMax = Math.max(120, currentMaxValue) || 150;
             else if (metricConfig.type === 'interference') heatmapMax = 90;
-            else if (metricConfig.type === 'speed') heatmapMax = Math.max(200, currentMaxValue) || 200;
         }
-        heatmapMax = heatmapMax === 0 ? (metricConfig?.type === 'speed' ? 100 : 50) : heatmapMax;
+        heatmapMax = heatmapMax === 0 ? ((metricConfig?.type === 'speed24' || metricConfig?.type === 'speed5') ? 100 : 50) : heatmapMax;
 
+        // Se não houver pontos válidos, não mostra nada no heatmap
         if (points.length > 0) {
             setHeatmapDataPoints({ max: heatmapMax, min: 0, data: points });
         } else {
